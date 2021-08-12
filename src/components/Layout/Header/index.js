@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router";
-
 import { Modal, Form, Input, Button, Checkbox } from "antd";
 import mhadaImage from "../../../img/mhada.jpg";
 import classes from "./styles.module.css";
-import { Dashboard } from "@material-ui/icons";
 
-const Header = () => {
+const Header = (props) => {
   const history = useHistory();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -21,6 +19,7 @@ const Header = () => {
 
   const onFinish = (values) => {
     console.log("Success:", values);
+    console.log("history", history);
     history.push("/dashboard");
   };
 
@@ -34,9 +33,15 @@ const Header = () => {
         <img className={classes.logo} src={mhadaImage} />
         <h3>MHADA LOTTORY</h3>
 
-        <Button type="link" onClick={showModal}>
-          Login
-        </Button>
+        {props.page === "login" ? (
+          <Button type="link" onClick={showModal}>
+            Login
+          </Button>
+        ) : (
+          <Button type="link" onClick={() => history.push("/login")}>
+            Logout
+          </Button>
+        )}
         <Modal
           title="Login"
           visible={isModalVisible}

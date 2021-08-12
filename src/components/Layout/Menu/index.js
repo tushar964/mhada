@@ -24,7 +24,7 @@ const MenuBar = () => {
   return (
     <Menu onClick={handleClick} mode="horizontal">
       <SubMenu
-        onTitleClick={() => handleClickMenu("/login")}
+        onTitleClick={() => handleClickMenu("/dashboard")}
         key="sub1"
         icon={<AppstoreOutlined />}
         title="About MHADA"
@@ -37,7 +37,7 @@ const MenuBar = () => {
         <Menu.Item key="6">Option 6</Menu.Item>
       </SubMenu>
 
-      <SubMenu
+      {/* <SubMenu
         onTitleClick={() => handleClickMenu("/boards")}
         key="sub3"
         icon={<SettingOutlined />}
@@ -54,11 +54,11 @@ const MenuBar = () => {
         icon={<SettingOutlined />}
         title="Upload document"
       >
-        {/* <Menu.Item key="5">photo </Menu.Item>
+        <Menu.Item key="5">photo </Menu.Item>
         <Menu.Item key="6">video 1</Menu.Item>
         <Menu.Item key="3">audio </Menu.Item>
-        <Menu.Item key="4">captoins </Menu.Item> */}
-      </SubMenu>
+        <Menu.Item key="4">captoins </Menu.Item>
+      </SubMenu> */}
       <SubMenu
         onTitleClick={() => handleClickMenu("/application")}
         key="sub5"
@@ -70,12 +70,6 @@ const MenuBar = () => {
         <Menu.Item key="3">audio </Menu.Item>
         <Menu.Item key="4">captoins </Menu.Item> */}
       </SubMenu>
-      <SubMenu
-        onTitleClick={() => handleClickMenu("/form")}
-        key="sub6"
-        icon={<SettingOutlined />}
-        title="Applicatio Form"
-      ></SubMenu>
     </Menu>
   );
 };

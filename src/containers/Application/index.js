@@ -1,90 +1,108 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Table, Space } from "antd";
-import { Button, Modal } from "antd";
-import { Form, Input, InputNumber } from "antd";
-import { AutoComplete } from "antd";
-
+import { Table, Space, Tag, Modal, Button, Form, Input, Select } from "antd";
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
-import { CallMissedSharp } from "@material-ui/icons";
 import classes from "./styles.module.css";
-const { Option } = AutoComplete;
+
+const { Option } = Select;
+const { Search } = Input;
+
+const dataSource = [
+  {
+    id: "1",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "2",
+    name: "Tushar",
+    mobile: 121212212,
+    email: "Tushar@Tushar.com",
+    status: "Approved",
+    remark: "",
+  },
+  {
+    id: "3",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "4",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "5",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "6",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "7",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "8",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "9",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "10",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+  {
+    id: "11",
+    name: "Mike",
+    mobile: 121212212,
+    email: "sdsd@sdsd.com",
+    status: "Pending",
+    remark: "",
+  },
+];
 
 const Application = () => {
-  const [result, setResult] = useState([]);
-
-  const handleSearch = (value) => {
-    let res = [];
-
-    if (!value || value.indexOf("@") >= 0) {
-      res = [];
-    } else {
-      res = ["gmail.com", "163.com", "qq.com"].map(
-        (domain) => `${value}@${domain}`
-      );
-    }
-
-    setResult(res);
-  };
-  const columns = [
-    {
-      title: "Applicant Id",
-      dataIndex: "number",
-    },
-    {
-      title: " Applicant Name",
-      dataIndex: "name",
-    },
-    {
-      title: "Mobile",
-      dataIndex: "mobile",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <Space size="middle" onClick={showModal}>
-          <a>
-            <Link to={"application/" + record.id}>Edit</Link>
-          </a>
-        </Space>
-      ),
-    },
-  ];
-  const data = [
-    {
-      key: "1",
-      number: 1,
-      name: "John Brown",
-      mobile: 8574569854,
-      email: "trf@ghao.cv",
-      status: "process",
-      action: "Edit",
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      age: 42,
-      address: "London No. 1 Lake Park",
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      age: 32,
-      address: "Sidney No. 1 Lake Park",
-    },
-  ];
-
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [data, setData] = useState(dataSource);
+  const [searchText, setSearchText] = useState("");
+  const [form] = Form.useForm();
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -98,124 +116,189 @@ const Application = () => {
     setIsModalVisible(false);
   };
 
-  const layout = {
-    labelCol: {
-      span: 8,
+  const columns = [
+    {
+      title: "Application Id",
+      dataIndex: "id",
+      key: "id",
     },
-    wrapperCol: {
-      span: 16,
+    {
+      title: "Applicant Name",
+      dataIndex: "name",
+      key: "name",
     },
-  };
-  /* eslint-disable no-template-curly-in-string */
+    {
+      title: "Mobile",
+      dataIndex: "mobile",
+      key: "mobile",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "status",
+      dataIndex: "status",
+      key: "status",
+      render: (text, record) => {
+        return <Tag color="red">{text}</Tag>;
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (text, record) => (
+        <Space size="middle">
+          <a onClick={() => onEdit(record)}>Edit</a>
+        </Space>
+      ),
+    },
+  ];
 
-  const validateMessages = {
-    required: "${label} is required!",
-    types: {
-      email: "${label} is not a valid email!",
-      number: "${label} is not a valid number!",
-    },
-    number: {
-      range: "${label} must be between ${min} and ${max}",
-    },
+  const onEdit = (record) => {
+    form.setFieldsValue(record);
+    setIsModalVisible(true);
   };
-  /* eslint-enable no-template-curly-in-string */
 
-  // const Demo = () => {
-  //   const onFinish = (values) => {
-  //     console.log(values);
-  //   };
-  // };
+  const onFinish = (values) => {
+    console.log("Success:", values);
+    const newDataSource = dataSource.map((item) => {
+      if (item.id === form.getFieldsValue().id) {
+        return form.getFieldsValue();
+      } else {
+        return item;
+      }
+    });
+    setData(newDataSource);
+    setIsModalVisible(false);
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
+
+  const onSearch = (text) => {
+    console.log("text:", text);
+    setSearchText(text);
+  };
+
   return (
     <>
       <Header />
       <MenuBar />
-      <AutoComplete
-        style={{
-          width: 200,
-        }}
-        onSearch={handleSearch}
-        placeholder="Search"
-      >
-        {result.map((email) => (
-          <Option key={email} value={email}>
-            {email}
-          </Option>
-        ))}
-      </AutoComplete>
-
-      <Button className={classes.btn} type="primary">
-        Enter
-      </Button>
-
-      <Button type="small">All Records</Button>
-      <div>
-        <div className={classes.container}>
-          {data.map((record) => (
-            <Table columns={columns} dataSource={data} size="middle" />
-          ))}
+      <div className={classes.container}>
+        <div className={classes.table}>
+          <Search
+            placeholder="input search text"
+            allowClear
+            enterButton="Search"
+            onSearch={onSearch}
+            style={{ width: 300, marginBottom: "10px" }}
+          />
+          <Table
+            dataSource={data.filter(
+              (item) => item.email.indexOf(searchText) > -1
+            )}
+            columns={columns}
+            rowKey={(row) => row.id}
+            bordered
+            size="middle"
+            scroll={{ x: "calc(700px + 50%)", y: 400 }}
+          />
         </div>
-        <Modal
-          title="Applicant Form"
-          visible={isModalVisible}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          footer={null}
-        >
-          <Form
-            {...layout}
-            name="nest-messages"
-            // onFinish={onFinish}
-            validateMessages={validateMessages}
-          >
-            <Form.Item
-              name={["user", "name"]}
-              label="Name"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name={["user", "mobile"]}
-              label="Mobile"
-              rules={[
-                {
-                  type: "number",
-                  // min: 0,
-                  // max: 10,
-                },
-              ]}
-            >
-              <InputNumber />
-            </Form.Item>
-            <Form.Item
-              name={["user", "email"]}
-              label="Email"
-              rules={[
-                {
-                  type: "email",
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item name={["user", "status"]} label="Status">
-              <Input />
-            </Form.Item>
-            <Form.Item name={["user", "remark"]} label="Remark">
-              <Input.TextArea />
-            </Form.Item>
-            <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-              <Button type="primary" htmlType="submit">
-                <Link>Save</Link>
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
       </div>
+      <Modal
+        title="Edit"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <Form
+          name="basic"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          layout="vertical"
+          form={form}
+        >
+          <Form.Item label="Id" name="id" hidden>
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: "Please input your name!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Mobile"
+            name="mobile"
+            rules={[
+              {
+                required: true,
+                message: "Please input your mobile!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              {
+                required: true,
+                message: "Please input your email!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="status"
+            label="Status"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              placeholder="Select status"
+              // onChange={this.onGenderChange}
+              allowClear
+            >
+              <Option value="Pending">Pending</Option>
+              <Option value="Approved">Approved</Option>
+              <Option value="Rejected">Rejected</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Remark"
+            name="remark"
+            rules={[
+              {
+                required: true,
+                message: "Please input your email!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Update
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };

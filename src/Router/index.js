@@ -1,6 +1,5 @@
 import React from "react";
 import { Route, Switch, BrowserRouter } from "react-router-dom";
-import App from "../App";
 import Login from "../containers/Login";
 import Dashboard from "../containers/Dashboard";
 import MenuBar from "../components/Layout/Menu";
@@ -13,9 +12,6 @@ const Router = () => {
   return (
     <BrowserRouter>
       <Switch>
-        <Route path="/" exact>
-          <Login />
-        </Route>
         <Route path="/login" exact>
           <Login />
         </Route>
@@ -34,8 +30,8 @@ const Router = () => {
         <Route path="/application">
           <Application />
         </Route>
-        <Route path="/form">
-          <Form />
+        <Route path="/">
+          <Login />
         </Route>
       </Switch>
     </BrowserRouter>

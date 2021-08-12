@@ -1,8 +1,15 @@
 .container {
-  padding: 12px;
-  border: 1px grey;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  min-height: 700px;
+  padding: 30px;
+  background: whitesmoke;
 }
 
 .btn {
   padding-left: 12px;
+}
+.table {
+  height: 300px;
 }

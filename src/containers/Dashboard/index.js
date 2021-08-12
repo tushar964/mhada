@@ -4,12 +4,16 @@ import { Menu, Switch, Divider } from "antd";
 import Header from "../../components/Layout/Header";
 import Boards from "../Pages/Boards";
 import MenuBar from "../../components/Layout/Menu";
+import classes from "./styles.module.css";
 
 const Dashboard = () => {
   return (
     <>
       <Header />
       <MenuBar />
+      <div className={classes.container}>
+        <h1>About mhada</h1>
+      </div>
     </>
   );
 };
