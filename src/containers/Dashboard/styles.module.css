@@ -1,0 +1,11 @@
+.menubar {
+  height: 40px;
+  background: darkgreen;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  height: 70px;
+}

@@ -1,0 +1,13 @@
+.header {
+  height: 70px;
+  background: orange;
+  padding-left: 15px;
+  padding-right: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  height: 70px;
+}
