@@ -38,6 +38,9 @@ const Router = () => {
         <Route path="/viewuser">
           <ViewUser />
         </Route>
+        <Route path="/">
+          <Login />
+        </Route>
       </Switch>
     </BrowserRouter>
   );

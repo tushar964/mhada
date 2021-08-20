@@ -11,6 +11,7 @@ const { Search } = Input;
 const Application = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
+  const [tableData, setTableData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
 
@@ -19,10 +20,11 @@ const Application = () => {
     Axios.get("http://94.237.3.166:8080/mhada/getAllCustomers").then(
       (result) => {
         console.log("lllll", localStorage.getItem("Username"));
+        setData(result.data);
         if (localStorage.getItem("Username") === "admin") {
-          setData(result.data);
+          setTableData(result.data);
         } else {
-          setData([result.data[0]]);
+          //setData([result.data[0]]);
         }
 
         console.log("result", result);
@@ -108,10 +110,14 @@ const Application = () => {
   };
 
   const onSearch = (text) => {
-    console.log("text:", text);
+    if (!isNaN(text)) {
+      const newData = data.filter((item) => item.key === parseInt(text));
+      console.log("text:", newData);
+      setTableData(newData);
+    }
     setSearchText(text);
   };
-  console.log("data:", data);
+  console.log("tableData:", tableData);
   return (
     <>
       <Header />
@@ -119,7 +125,7 @@ const Application = () => {
       <div className={classes.container}>
         <div className={classes.table}>
           <Search
-            placeholder="input search text"
+            placeholder="Search by id+"
             allowClear
             enterButton="Search"
             onSearch={onSearch}
@@ -128,8 +134,8 @@ const Application = () => {
           <Table
             dataSource={
               searchText
-                ? data.filter((item) => item?.emailId?.indexOf(searchText) > -1)
-                : data
+                ? tableData.filter((item) => item?.key === parseInt(searchText))
+                : tableData
             }
             columns={columns}
             rowKey={(row) => row.id}
