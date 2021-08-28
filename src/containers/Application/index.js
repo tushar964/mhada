@@ -125,7 +125,7 @@ const Application = () => {
       <div className={classes.container}>
         <div className={classes.table}>
           <Search
-            placeholder="Search by id+"
+            placeholder="Search by id"
             allowClear
             enterButton="Search"
             onSearch={onSearch}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
 import { Form, Input, Button, Select, DatePicker, InputNumber } from "antd";
@@ -26,15 +26,38 @@ const tailLayout = {
 
 const AddUser = () => {
   const [data, setData] = useState([]);
-  useEffect(() => {
-    //debugger;
-    Axios.get("http://94.237.3.166:8080/mhada/user").then((result) => {
-      setData(result.data);
-      console.log("result", result);
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+  const history = useHistory();
+
+  const Save = async () => {
+    let item = { name, email, address, mobile };
+
+    let result = await fetch("http://94.237.3.166:8080/mhada/user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(item),
     });
-    console.log("yu");
-    //debugger;
-  }, []);
+    result = await result.json();
+    console.log("result", result);
+    localStorage.setItem("user-info", JSON.stringify(result));
+    history.push("/application");
+  };
+
+  // useEffect(() => {
+  //   //debugger;
+  //   Axios.get("http://94.237.3.166:8080/mhada/user").then((result) => {
+  //     setData(result.data);
+  //     console.log("result", result);
+  //   });
+  //   console.log("yu");
+  //   //debugger;
+  // }, []);
 
   const [form] = Form.useForm();
   const onGenderChange = (value) => {
@@ -82,6 +105,8 @@ const AddUser = () => {
           <Form.Item
             name="name"
             label="Name"
+            value="name"
+            onChange={(e) => setName(e.target.value)}
             rules={[
               {
                 required: true,
@@ -134,6 +159,8 @@ const AddUser = () => {
           <Form.Item
             name="address"
             label="Address"
+            value="address"
+            onChange={(e) => setAddress(e.target.value)}
             rules={[
               {
                 required: true,
@@ -183,6 +210,8 @@ const AddUser = () => {
           <Form.Item
             name="email"
             label="Email"
+            value="email"
+            onChange={(e) => setEmail(e.target.value)}
             rules={[
               {
                 type: "email",
@@ -195,6 +224,8 @@ const AddUser = () => {
           <Form.Item
             name="mobile"
             label="Mobile"
+            value="mobile"
+            onChange={(e) => setMobile(e.target.value)}
             rules={[
               {
                 // type: "number",
@@ -230,7 +261,7 @@ const AddUser = () => {
           </Form.Item>
 
           <Form.Item {...tailLayout}>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" onClick={Save} htmlType="submit">
               Save
             </Button>
             <Button htmlType="button" onClick={onReset}>

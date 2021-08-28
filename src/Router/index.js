@@ -6,8 +6,8 @@ import MenuBar from "../components/Layout/Menu";
 import AddUser from "../containers/Pages/AddUser";
 import Application from "../containers/Application";
 import Project from "../containers/Pages/Project";
-
 import ViewUser from "../containers/Pages/ViewUser";
+import SchemeDetails from "../containers/Pages/SchemeDetails";
 
 const Router = () => {
   return (
@@ -37,6 +37,9 @@ const Router = () => {
         </Route>
         <Route path="/viewuser">
           <ViewUser />
+        </Route>
+        <Route path="/schemedetails">
+          <SchemeDetails />
         </Route>
         <Route path="/">
           <Login />

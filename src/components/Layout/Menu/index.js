@@ -78,9 +78,23 @@ const MenuBar = () => {
       ></SubMenu>
       <SubMenu
         onTitleClick={() => handleClickMenu("/viewuser")}
-        key="sub6"
+        key="sub7"
         icon={<SettingOutlined />}
         title="View Mhada User"
+      ></SubMenu>
+      <SubMenu
+        onTitleClick={() => handleClickMenu("/project")}
+        key="sub8"
+        icon={<SettingOutlined />}
+        title="User scheme code
+        "
+      ></SubMenu>
+      <SubMenu
+        onTitleClick={() => handleClickMenu("/schemedetails")}
+        key="sub9"
+        icon={<SettingOutlined />}
+        title="Scheme Details
+        "
       ></SubMenu>
     </Menu>
   );
