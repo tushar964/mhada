@@ -14,24 +14,32 @@ const Application = () => {
   const [tableData, setTableData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    //debugger;
-    Axios.get("http://94.237.3.166:8089/mhada/getAllCustomers").then(
+  const getCustomerData = () => {
+    setIsLoading(true);
+    Axios.get("http://94.237.3.166:8089/postlmhada/getAllCustomers").then(
       (result) => {
-        console.log("lllll", localStorage.getItem("Username"));
+        // console.log("lllll", localStorage.getItem("Username"));
         setData(result.data);
+        setIsLoading(false);
         if (localStorage.getItem("Username") === "admin") {
           setTableData(result.data);
         } else {
           //setData([result.data[0]]);
         }
 
-        console.log("result", result);
+        // console.log("result", result);
       }
     );
+  };
 
-    console.log("yu", "result");
+  useEffect(() => {
+    getCustomerData();
+    console.log("-----on application--");
+    //debugger;
+
+    // console.log("yu", "result");
     //debugger;
   }, []);
 
@@ -40,6 +48,14 @@ const Application = () => {
   };
 
   const handleOk = () => {
+    // update status
+    // Axios.post(
+    //   "http://94.237.3.166:8089/postlmhada/updateCustomerStatus",
+    //   values
+    // ).then((result) => {
+    //   getCustomerData();
+    //   setIsModalVisible(false);
+    // });
     setIsModalVisible(false);
   };
 
@@ -50,28 +66,28 @@ const Application = () => {
   const columns = [
     {
       title: "Application Id",
-      dataIndex: "key",
-      key: "key",
+      dataIndex: "appReference",
+      key: "appReference",
     },
     {
       title: "Applicant Name",
       dataIndex: "customerName",
-      key: "customerName",
+      // key: "customerName",
     },
     {
       title: "Mobile",
       dataIndex: "mobileNo",
-      key: "mobile",
+      // key: "mobile",
     },
     {
       title: "Email",
       dataIndex: "emailId",
-      key: "email",
+      // key: "email",
     },
     {
       title: "status",
-      dataIndex: "activeFlag",
-      key: "activeFlag",
+      dataIndex: "status",
+      // key: "status",
       render: (text, record) => {
         return <Tag color="red">{text}</Tag>;
       },
@@ -94,16 +110,28 @@ const Application = () => {
 
   const onFinish = (values) => {
     console.log("Success:", values);
-    const newDataSource = data.map((item) => {
-      if (item.key === form.getFieldsValue().key) {
-        return form.getFieldsValue();
-      } else {
-        return item;
-      }
+    setIsLoading(true);
+    // const newDataSource = data.map((item) => {
+    //   if (item.key === form.getFieldsValue().key) {
+    //     return form.getFieldsValue();
+    //   } else {
+    //     return item;
+    //   }
+    // });
+
+    // update status
+    Axios.post("http://94.237.3.166:8089/postlmhada/updateCustomerStatus", {
+      appReference: form.getFieldsValue().appReference,
+      status: form.getFieldsValue().status,
+    }).then((result) => {
+      getCustomerData();
+      setIsModalVisible(false);
+      setIsLoading(false);
     });
-    setData(newDataSource);
+
+    // setData(newDataSource);
     setIsModalVisible(false);
-    console.log("rt", newDataSource, "newDataSource");
+    //console.log("rt", newDataSource, "newDataSource");
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -111,12 +139,20 @@ const Application = () => {
   };
 
   const onSearch = (text) => {
-    if (!isNaN(text)) {
-      const newData = data.filter((item) => item.key === parseInt(text));
-      console.log("text:", newData);
+    console.log("text", text.trim());
+    if (text.trim() !== "") {
+      console.log("ggggggggg");
+      const newData = data.filter((item) => item.appReference === text);
+      //console.log("text:", newData);
       setTableData(newData);
+      console.log("newData", newData);
+    } else {
+      if (localStorage.getItem("Username") === "admin") {
+        setTableData(data);
+      } else {
+      }
     }
-    setSearchText(text);
+    //setSearchText(text);
   };
   console.log("tableData:", tableData);
   return (
@@ -133,16 +169,13 @@ const Application = () => {
             style={{ width: 300, marginBottom: "10px" }}
           />
           <Table
-            dataSource={
-              searchText
-                ? tableData.filter((item) => item?.key === parseInt(searchText))
-                : tableData
-            }
+            dataSource={tableData}
             columns={columns}
             rowKey={(row) => row.id}
             bordered
             size="middle"
             scroll={{ x: "calc(700px + 50%)", y: 400 }}
+            loading={isLoading}
           />
         </div>
       </div>
@@ -152,6 +185,7 @@ const Application = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null}
+        loading={isLoading}
       >
         <Form
           name="basic"
@@ -159,9 +193,22 @@ const Application = () => {
           onFinishFailed={onFinishFailed}
           layout="vertical"
           form={form}
+          // loading={isLoading}
         >
           <Form.Item label="Id" name="key" hidden>
             <Input />
+          </Form.Item>
+          <Form.Item
+            label="Application Reference"
+            name="appReference"
+            rules={[
+              {
+                required: true,
+                message: "Please input your name!",
+              },
+            ]}
+          >
+            <Input disabled />
           </Form.Item>
           <Form.Item
             label="Name"
@@ -200,23 +247,16 @@ const Application = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="activeFlag"
             label="Status"
+            name="status"
             rules={[
               {
                 required: true,
+                message: "Please input your status!",
               },
             ]}
           >
-            <Select
-              placeholder="Select status"
-              // onChange={this.onGenderChange}
-              allowClear
-            >
-              <Option value="Y">Y</Option>
-              <Option value="R">R</Option>
-              {/* <Option value="Rejected">Rejected</Option> */}
-            </Select>
+            <Input />
           </Form.Item>
           <Form.Item
             label="Remark"
@@ -224,7 +264,7 @@ const Application = () => {
             rules={[
               {
                 required: true,
-                message: "Please input your email!",
+                message: "Please input your Remark!",
               },
             ]}
           >
