@@ -25,31 +25,35 @@ const tailLayout = {
 
 const SchemeDetails = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [formtype, setFormType] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
     //debugger;
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllScheme").then(
-      (result) => {
-        console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data);
-        // if (localStorage.getItem("Username") === "admin") {
-        //   setTableData(result.data);
-        // } else {
-        //   //setData([result.data[0]]);
-        // }
-
-        console.log("result", result);
-      }
-    );
+    getUsersData();
     console.log("result");
     //debugger;
   }, []);
 
+  const getUsersData = () => {
+    setIsLoading(true);
+    Axios.get("http://94.237.3.166:8089/postlmhada/getAllScheme").then(
+      (result) => {
+        console.log("lllll", localStorage.getItem("Username"));
+        setData(result.data);
+        setIsLoading(false);
+        console.log("result", result);
+      }
+    );
+  };
   const showModal = () => {
+    form.resetFields();
     setIsModalVisible(true);
+
+    setFormType("add");
   };
 
   const handleOk = () => {
@@ -77,12 +81,37 @@ const SchemeDetails = () => {
   };
 
   const onEdit = (record) => {
-    form.setFieldsValue(record);
+    const formData = {
+      ...record,
+      lottery: record.lottery.lotteryName,
+    };
+    console.log("ree", formData);
+    form.setFieldsValue(formData);
     setIsModalVisible(true);
+    setFormType("edit");
   };
 
   const onFinish = (values) => {
     console.log(values, "values");
+    if (formtype === "add") {
+      Axios.post(
+        "http://94.237.3.166:8089/postlmhada/persistScheme",
+        values
+      ).then((result) => {
+        getUsersData();
+        setIsModalVisible(false);
+      });
+    } else {
+      Axios.post(
+        "http://94.237.3.166:8089/postlmhada/updateCustomerStatus",
+        values
+      ).then((result) => {
+        getUsersData();
+        setIsModalVisible(false);
+      });
+    }
+
+    console.log("values");
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -119,90 +148,9 @@ const SchemeDetails = () => {
             Add Scheme
           </Button>
         </div>
-        <Modal
-          title="Basic Modal"
-          visible={isModalVisible}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          //   footer={null}
-        >
-          <Form
-            {...layout}
-            form={form}
-            name="control-hooks"
-            onFinish={onFinish}
-          >
-            <Form.Item
-              name="lottory"
-              label="Lottory"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            ></Form.Item>
-
-            <Form.Item
-              name="schemeType"
-              label="Scheme Type"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item
-              name="schemeCode"
-              label="Scheme code"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="schemeName"
-              label="Scheme Name"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="schemePlace"
-              label="Scheme Place"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item {...tailLayout}>
-              <Button type="primary" htmlType="submit">
-                Add
-              </Button>
-              <Button htmlType="button" onCancel={handleCancel}>
-                Cancel
-              </Button>
-              {/* <Button type="link" htmlType="button" onClick={onFill}>
-                Fill form
-              </Button> */}
-            </Form.Item>
-          </Form>
-        </Modal>
       </div>
       <div className={classes.table}>
-        <Table dataSource={data}>
+        <Table dataSource={data} loading={isLoading}>
           <Column title="key" dataIndex="key" key="key" />
           <Column
             title="Lottery"
@@ -235,7 +183,7 @@ const SchemeDetails = () => {
           />
         </Table>
         <Modal
-          title="Edit"
+          title={formtype === "add" ? "Add" : "Edit"}
           visible={isModalVisible}
           onOk={handleOk}
           onCancel={handleCancel}
@@ -252,7 +200,7 @@ const SchemeDetails = () => {
               <Input />
             </Form.Item>
             <Form.Item
-              name="lotteryName"
+              name="lottery"
               label="Lottery"
               //   onChange={(e) =>}
               rules={[
@@ -343,8 +291,13 @@ const SchemeDetails = () => {
             </Form.Item> */}
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Update
-              </Button>
+                {formtype === "add" ? "Add" : "Update"}
+              </Button>{" "}
+              {formtype === "add" && (
+                <Button type="primary" htmlType="submit">
+                  Cancel
+                </Button>
+              )}
             </Form.Item>
           </Form>
         </Modal>

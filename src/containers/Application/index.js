@@ -17,7 +17,7 @@ const Application = () => {
 
   useEffect(() => {
     //debugger;
-    Axios.get("http://94.237.3.166:8080/mhada/getAllCustomers").then(
+    Axios.get("http://94.237.3.166:8089/mhada/getAllCustomers").then(
       (result) => {
         console.log("lllll", localStorage.getItem("Username"));
         setData(result.data);
@@ -30,6 +30,7 @@ const Application = () => {
         console.log("result", result);
       }
     );
+
     console.log("yu", "result");
     //debugger;
   }, []);
