@@ -1,12 +1,41 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import { Table, Space, Tag, Modal, Button, Form, Input, Select } from "antd";
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
 import classes from "./styles.module.css";
+import api from "../../../src/services/api";
 
 const { Option } = Select;
 const { Search } = Input;
+const areas = [
+  { label: "AND", value: "AND" },
+  { label: "OR", value: "OR" },
+];
+const field = [
+  { label: "Application Id", value: "appReference" },
+  { label: "Applicant Name", value: "customerName " },
+  { label: "Mobile", value: "mobileNo" },
+  { label: "Email", value: "emailId" },
+  { label: "status", value: "status" },
+];
+
+// const field = {
+//   AND: ["Application Id", "Applicant Name", "Mobile", "Email", "status"],
+// };
+const check = [
+  { label: "equal", value: "equal" },
+  { label: "not equal", value: "not equal" },
+  { label: "less", value: "less" },
+  { label: "less or equal", value: "less or equal" },
+  { label: "greater", value: "greater" },
+  { label: "greater or equal", value: "greater or equal" },
+  { label: "null", value: "null" },
+  { label: "is not null", value: "is not null" },
+  { label: "is in", value: "is in" },
+  { label: "is not in", value: "is not in" },
+];
 
 const Application = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -18,21 +47,22 @@ const Application = () => {
 
   const getCustomerData = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllCustomers").then(
-      (result) => {
-        // console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data);
-        setIsLoading(false);
-        if (localStorage.getItem("Username") === "admin") {
-          setTableData(result.data);
-        } else {
-          //setData([result.data[0]]);
-        }
-
-        // console.log("result", result);
+    api.get("/getAllCustomers").then((result) => {
+      // console.log("lllll", localStorage.getItem("Username"));
+      setData(result.data);
+      setIsLoading(false);
+      if (localStorage.getItem("Username") === "admin") {
+        setTableData(result.data);
+      } else {
+        //setData([result.data[0]]);
       }
-    );
+
+      // console.log("result", result);
+    });
   };
+
+  // const getCustomerData = (data) =>
+  //   api.get(`/getAllCustomers/?setData=${data}`);
 
   useEffect(() => {
     getCustomerData();
@@ -68,26 +98,27 @@ const Application = () => {
       title: "Application Id",
       dataIndex: "appReference",
       key: "appReference",
+      label: "Application Id",
     },
     {
       title: "Applicant Name",
       dataIndex: "customerName",
-      // key: "customerName",
+      label: "Applicant Name",
     },
     {
       title: "Mobile",
       dataIndex: "mobileNo",
-      // key: "mobile",
+      label: "Mobile",
     },
     {
       title: "Email",
       dataIndex: "emailId",
-      // key: "email",
+      label: "Email",
     },
     {
       title: "status",
       dataIndex: "status",
-      // key: "status",
+      label: "status",
       render: (text, record) => {
         return <Tag color="red">{text}</Tag>;
       },
@@ -109,30 +140,36 @@ const Application = () => {
   };
 
   const onFinish = (values) => {
-    console.log("Success:", values);
-    setIsLoading(true);
-    // const newDataSource = data.map((item) => {
-    //   if (item.key === form.getFieldsValue().key) {
-    //     return form.getFieldsValue();
-    //   } else {
-    //     return item;
-    //   }
-    // });
-
-    // update status
-    Axios.post("http://94.237.3.166:8089/postlmhada/updateCustomerStatus", {
-      appReference: form.getFieldsValue().appReference,
-      status: form.getFieldsValue().status,
-    }).then((result) => {
-      getCustomerData();
-      setIsModalVisible(false);
-      setIsLoading(false);
-    });
-
-    // setData(newDataSource);
-    setIsModalVisible(false);
-    //console.log("rt", newDataSource, "newDataSource");
+    console.log("Received values of form:", values);
   };
+
+  // const onFinish = (values) => {
+  //   console.log("Success:", values);
+  //   setIsLoading(true);
+  //   // const newDataSource = data.map((item) => {
+  //   //   if (item.key === form.getFieldsValue().key) {
+  //   //     return form.getFieldsValue();
+  //   //   } else {
+  //   //     return item;
+  //   //   }
+  //   // });
+
+  //   // update status
+  //   api
+  //     .post("/updateCustomerStatus", {
+  //       appReference: form.getFieldsValue().appReference,
+  //       status: form.getFieldsValue().status,
+  //     })
+  //     .then((result) => {
+  //       getCustomerData();
+  //       setIsModalVisible(false);
+  //       setIsLoading(false);
+  //     });
+
+  //   // setData(newDataSource);
+  //   setIsModalVisible(false);
+  //   //console.log("rt", newDataSource, "newDataSource");
+  // };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -142,7 +179,14 @@ const Application = () => {
     console.log("text", text.trim());
     if (text.trim() !== "") {
       console.log("ggggggggg");
-      const newData = data.filter((item) => item.appReference === text);
+      const newData = data.filter(
+        (item) =>
+          item.appReference.indexOf(text) > -1 ||
+          item.customerName.indexOf(text) > -1 ||
+          item.mobileNo.indexOf(text) > 1 ||
+          item.emailId.indexOf(text) > 1 ||
+          item.status === text
+      );
       //console.log("text:", newData);
       setTableData(newData);
       console.log("newData", newData);
@@ -155,12 +199,135 @@ const Application = () => {
     //setSearchText(text);
   };
   console.log("tableData:", tableData);
+
+  const handleChange = () => {
+    form.setFieldsValue({ field: [] });
+  };
+
   return (
     <>
       <Header />
       <MenuBar />
       <div className={classes.container}>
         <div className={classes.table}>
+          <Form
+            name="dynamic_form_nest_item"
+            onFinish={onFinish}
+            autoComplete="off"
+            form={form}
+          >
+            <Form.List name="field">
+              {(fields, { add, remove }) => (
+                <>
+                  <Space
+                    style={{ display: "flex", marginBottom: 8 }}
+                    align="baseline"
+                  >
+                    <Form.Item
+                      name="area"
+                      rules={[{ required: true, message: "Missing area" }]}
+                      style={{ width: 250 }}
+                    >
+                      <Select
+                        options={areas}
+                        onChange={handleChange}
+                        placeholder="AND"
+                      />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        icon={<PlusOutlined />}
+                        style={{ width: 30 }}
+                      ></Button>
+                    </Form.Item>
+                  </Space>
+                  <Space
+                    //key={key}
+                    style={{ display: "flex", marginBottom: 8 }}
+                    align="baseline"
+                  >
+                    <Form.Item style={{ width: 200 }}>
+                      <Select
+                        options={field}
+                        onChange={handleChange}
+                        placeholder="Application Id"
+                      />
+                    </Form.Item>
+                    <Form.Item style={{ width: 200 }}>
+                      <Select
+                        options={check}
+                        onChange={handleChange}
+                        placeholder="equal"
+                      />
+                    </Form.Item>
+                    <Form.Item>
+                      <Input />
+                    </Form.Item>
+                  </Space>
+
+                  {fields.map(({ key, name, fieldKey, ...restField }) => (
+                    <Space
+                      key={key}
+                      style={{ display: "flex", marginBottom: 8 }}
+                      align="baseline"
+                    >
+                      <Form.Item
+                        {...restField}
+                        name={[name, "first"]}
+                        fieldKey={[fieldKey, "first"]}
+                        name="area"
+                        rules={[{ required: true, message: "Missing area" }]}
+                        rules={[
+                          { required: true, message: "Missing first name" },
+                        ]}
+                        style={{ width: 200 }}
+                      >
+                        <Select
+                          options={columns}
+                          onChange={handleChange}
+                          placeholder="Application Id"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "last"]}
+                        fieldKey={[fieldKey, "last"]}
+                        rules={[
+                          { required: true, message: "Missing last name" },
+                        ]}
+                        style={{ width: 200 }}
+                      >
+                        <Select
+                          options={columns}
+                          onChange={handleChange}
+                          placeholder="equal"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "last"]}
+                        fieldKey={[fieldKey, "last"]}
+                        rules={[
+                          { required: true, message: "Missing last name" },
+                        ]}
+                      >
+                        <Input />
+                      </Form.Item>
+
+                      <MinusCircleOutlined onClick={() => remove(name)} />
+                    </Space>
+                  ))}
+                </>
+              )}
+            </Form.List>
+            <Form.Item>
+              <Button type="primary" onClick={Search}>
+                Find{" "}
+              </Button>
+            </Form.Item>
+          </Form>
           <Search
             placeholder="Search by id"
             allowClear

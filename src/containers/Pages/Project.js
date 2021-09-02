@@ -160,6 +160,7 @@ const Project = () => {
           }}
           columns={columns}
           dataSource={data}
+          //loading={isLoading}
         />
       </div>
 
