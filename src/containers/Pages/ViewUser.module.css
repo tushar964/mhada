@@ -1,4 +1,12 @@
 .container {
+  display: flex;
+  /* justify-content: center; */
+  align-items: center;
+  /* height: 700px; */
+  padding: 30px;
+  background: whitesmoke;
+}
+.table {
   display: block;
   justify-content: center;
   align-items: center;
@@ -9,6 +17,9 @@
 
 .btn {
   padding-left: 12px;
+}
+.btn1 {
+  padding-left: 30px;
 }
 .table {
   height: 300px;

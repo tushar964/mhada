@@ -8,7 +8,10 @@ import Application from "../containers/Application";
 import Project from "../containers/Pages/Project";
 import ViewUser from "../containers/Pages/ViewUser";
 import SchemeDetails from "../containers/Pages/SchemeDetails";
-
+import ActivateApplicantList from "../containers/Pages/ActivateApplicantList";
+import BroadCastWinner from "../containers/Pages/BroadCastWinner";
+import WaitingList from "../containers/Pages/WatingList";
+import SmsScreen from "../containers/Pages/SmsScreen";
 const Router = () => {
   return (
     <BrowserRouter>
@@ -40,6 +43,18 @@ const Router = () => {
         </Route>
         <Route path="/schemedetails">
           <SchemeDetails />
+        </Route>
+        <Route path="/activateapplicantlist">
+          <ActivateApplicantList />
+        </Route>
+        <Route path="/broadcastwinner">
+          <BroadCastWinner />
+        </Route>
+        <Route path="/waitinglist">
+          <WaitingList />
+        </Route>
+        <Route path="/smsscreen">
+          <SmsScreen />
         </Route>
         <Route path="/">
           <Login />

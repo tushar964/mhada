@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import { Table, Space, Tag, Modal, Button, Form, Input, Select } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
 import classes from "./styles.module.css";
@@ -9,21 +10,56 @@ import api from "../../../src/services/api";
 
 const { Option } = Select;
 const { Search } = Input;
+
 const areas = [
   { label: "AND", value: "AND" },
   { label: "OR", value: "OR" },
 ];
-const field = [
-  { label: "Application Id", value: "appReference" },
-  { label: "Applicant Name", value: "customerName " },
-  { label: "Mobile", value: "mobileNo" },
-  { label: "Email", value: "emailId" },
-  { label: "status", value: "status" },
-];
+// const field = [
+//   { label: "Application Id", value: "appReference" },
+//   { label: "Applicant Name", value: "customerName " },
+//   { label: "Mobile", value: "mobileNo" },
+//   { label: "Email", value: "emailId" },
+//   { label: "status", value: "status" },
+// ];
 
-// const field = {
-//   AND: ["Application Id", "Applicant Name", "Mobile", "Email", "status"],
+// const sights = {
+//   Beijing: ['Tiananmen', 'Great Wall'],
+//   Shanghai: ['Oriental Pearl', 'The Bund'],
 // };
+
+const sights = {
+  AND: ["Application Id", "Applicant Name", "Mobile", "Email", "status"],
+  OR: ["Application Id", "Applicant Name", "Mobile", "Email", "status"],
+};
+const fields = {
+  AND: [
+    "equal",
+    "not equal",
+    "less",
+    "less or equal",
+    "greater",
+    "greater or equal",
+    ,
+    "null",
+    "is not null",
+    "is in",
+    "is not in",
+  ],
+  AND: [
+    "equal",
+    "not equal",
+    "less",
+    "less or equal",
+    "greater",
+    "greater or equal",
+    ,
+    "null",
+    "is not null",
+    "is in",
+    "is not in",
+  ],
+};
 const check = [
   { label: "equal", value: "equal" },
   { label: "not equal", value: "not equal" },
@@ -201,7 +237,7 @@ const Application = () => {
   console.log("tableData:", tableData);
 
   const handleChange = () => {
-    form.setFieldsValue({ field: [] });
+    form.setFieldsValue({ sights: [] });
   };
 
   return (
@@ -210,7 +246,7 @@ const Application = () => {
       <MenuBar />
       <div className={classes.container}>
         <div className={classes.table}>
-          <Form
+          {/* <Form
             name="dynamic_form_nest_item"
             onFinish={onFinish}
             autoComplete="off"
@@ -325,6 +361,102 @@ const Application = () => {
             <Form.Item>
               <Button type="primary" onClick={Search}>
                 Find{" "}
+              </Button>
+            </Form.Item>
+          </Form> */}
+          <Form
+            form={form}
+            name="dynamic_form_nest_item"
+            onFinish={onFinish}
+            autoComplete="off"
+          >
+            <Form.Item
+              name="area"
+              //label="Area"
+              rules={[{ required: true, message: "Missing area" }]}
+              style={{ width: 250 }}
+            >
+              <Select options={areas} onChange={handleChange} />
+            </Form.Item>
+            <Form.List name="fields">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map((field) => (
+                    <Space key={field.key} align="baseline">
+                      <Form.Item
+                        noStyle
+                        shouldUpdate={(prevValues, curValues) =>
+                          prevValues.area !== curValues.area ||
+                          prevValues.sights !== curValues.sights ||
+                          prevValues.fields !== curValues.fields
+                        }
+                      >
+                        {() => (
+                          <Form.Item
+                            {...field}
+                            //label="Sight"
+                            name={[field.name, "sight"]}
+                            fieldKey={[field.fieldKey, "sight"]}
+                            rules={[
+                              { required: true, message: "Missing sight" },
+                            ]}
+                          >
+                            <Select
+                              disabled={!form.getFieldValue("area")}
+                              style={{ width: 130 }}
+                            >
+                              {(sights[form.getFieldValue("area")] || []).map(
+                                (item) => (
+                                  <Option key={item} value={item}>
+                                    {item}
+                                  </Option>
+                                )
+                              )}
+                            </Select>
+                          </Form.Item>
+                        )}
+                      </Form.Item>
+
+                      <Form.Item
+                        {...field}
+                        // label="label"
+                        name={[field.name, "fields"]}
+                        fieldKey={[field.fieldKey, "fields"]}
+                        rules={[{ required: true, message: "Missing fields" }]}
+                      >
+                        <Select
+                          disabled={!form.getFieldValue("area")}
+                          style={{ width: 130 }}
+                        >
+                          {(fields[form.getFieldValue("area")] || []).map(
+                            (item) => (
+                              <Option key={item} value={item}>
+                                {item}
+                              </Option>
+                            )
+                          )}
+                        </Select>
+                      </Form.Item>
+                      <Input />
+
+                      <MinusCircleOutlined onClick={() => remove(field.name)} />
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      icon={<PlusOutlined />}
+                      style={{ width: 30 }}
+                    ></Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Submit
               </Button>
             </Form.Item>
           </Form>

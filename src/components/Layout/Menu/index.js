@@ -29,12 +29,44 @@ const MenuBar = () => {
         icon={<AppstoreOutlined />}
         title="About MHADA"
       >
-        <SubMenu key="sub2" title="Vision & Missons">
-          <Menu.Item key="7">Our Role</Menu.Item>
-          <Menu.Item key="8">History</Menu.Item>
+        <SubMenu
+          onTitleClick={() => handleClickMenu("/adduser")}
+          key="sub6"
+          icon={<SettingOutlined />}
+          title="Activate Wait List"
+        >
+          <Menu.Item
+            key="7"
+            onTitleClick={() => handleClickMenu("/broadcastwinner")}
+          >
+            BroadCastWinner
+          </Menu.Item>
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/smsscreen")}
+            key="sub11"
+            icon={<SettingOutlined />}
+            title="Sms Screen"
+          ></SubMenu>
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/activateapplicantlist")}
+            key="sub10"
+            icon={<SettingOutlined />}
+            title="Activate Applicant List
+        "
+          ></SubMenu>
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/waitinglist")}
+            key="sub11"
+            icon={<SettingOutlined />}
+            title="Waiting List"
+          ></SubMenu>
         </SubMenu>
-        <Menu.Item key="5">Option 5</Menu.Item>
-        <Menu.Item key="6">Option 6</Menu.Item>
+        <SubMenu
+          onTitleClick={() => handleClickMenu("/broadcastwinner")}
+          key="sub11"
+          icon={<SettingOutlined />}
+          title="BroadCast Winner"
+        ></SubMenu>
       </SubMenu>
 
       {/* <SubMenu
@@ -70,12 +102,7 @@ const MenuBar = () => {
         <Menu.Item key="3">audio </Menu.Item>
         <Menu.Item key="4">captoins </Menu.Item> */}
       </SubMenu>
-      <SubMenu
-        onTitleClick={() => handleClickMenu("/adduser")}
-        key="sub6"
-        icon={<SettingOutlined />}
-        title="Add Mhada User"
-      ></SubMenu>
+
       <SubMenu
         onTitleClick={() => handleClickMenu("/viewuser")}
         key="sub7"
