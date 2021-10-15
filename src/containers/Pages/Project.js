@@ -93,6 +93,37 @@ const rowSelection = {
 const Project = () => {
   const [selectionType, setSelectionType] = useState("checkbox");
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [schemeData, setSchemeData] = useState([]);
+  useEffect(() => {
+    getSchemeData();
+    // eslint-disable-next-line no-use-before-define
+  }, []);
+
+  const getSchemeData = () => {
+    setIsLoading(true);
+    Axios.get("http://94.237.3.166:8089/postlmhada/getAllScheme").then(
+      (result) => {
+        console.log("scheme", result);
+        // setSchemeData(newSchemeData);
+
+        const newSchemeData = result.data.map((cvalue) => {
+          return {
+            label: cvalue.schemeCode,
+            value: cvalue.schemeCode,
+            // label: cvalue.schemeName,
+            // value: cvalue.schemeName,
+          };
+        });
+        console.log("newSchemeData", newSchemeData);
+        setSchemeData(newSchemeData);
+        // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
+        // dispatch(action);
+
+        setIsLoading(false);
+      }
+    );
+  };
 
   useEffect(() => {
     //debugger;
@@ -127,9 +158,15 @@ const Project = () => {
       <div className={classes.container}>
         <Input.Group compact>
           Scheme code:
-          <Select defaultValue="" style={{ width: "20%" }}>
-            <Option value="Sign Up">Sign Up</Option>
-            <Option value="Sign In">Sign In</Option>
+          <Select
+            defaultValue=""
+            style={{ width: "20%" }}
+            options={schemeData}
+            showSearch
+            allowClear={true}
+          >
+            {/* <Option value="schemeCode">schemeCode</Option>
+            //<Option value="Sign In">Sign In</Option> */}
           </Select>
           {/* <AutoComplete
           style={{ width: "70%" }}

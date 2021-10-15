@@ -1,17 +1,17 @@
 .container {
   display: flex;
-  /* justify-content: center; */
+  justify-content: center;
   align-items: center;
   /* height: 700px; */
-  padding: 30px;
+  padding: 15px;
   background: whitesmoke;
 }
 .table {
   display: block;
   justify-content: center;
   align-items: center;
-  min-height: 700px;
-  padding: 30px;
+  /* min-height: 700px; */
+  padding: 15px;
   background: whitesmoke;
 }
 
@@ -21,6 +21,6 @@
 .btn1 {
   padding-left: 30px;
 }
-.table {
+/* .table {
   height: 300px;
-}
+} */

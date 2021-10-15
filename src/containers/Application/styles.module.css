@@ -3,12 +3,19 @@
   justify-content: center;
   align-items: center;
   min-height: 700px;
-  padding: 30px;
+  padding: 15px;
   background: whitesmoke;
 }
-
+.container1 {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  /* min-height: 700px; */
+  padding: 15px;
+  background: whitesmoke;
+}
 .btn {
-  padding-left: 12px;
+  padding: 12px;
 }
 .table {
   height: 300px;

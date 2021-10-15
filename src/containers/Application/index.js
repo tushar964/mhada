@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
-import { Table, Space, Tag, Modal, Button, Form, Input, Select } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Space,
+  Tag,
+  Modal,
+  Button,
+  Form,
+  Input,
+  Select,
+  Upload,
+  Menu,
+  Dropdown,
+} from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
@@ -83,18 +95,20 @@ const Application = () => {
 
   const getCustomerData = () => {
     setIsLoading(true);
-    api.get("/getAllCustomers").then((result) => {
-      // console.log("lllll", localStorage.getItem("Username"));
-      setData(result.data);
-      setIsLoading(false);
-      if (localStorage.getItem("Username") === "admin") {
-        setTableData(result.data);
-      } else {
-        //setData([result.data[0]]);
-      }
+    Axios.get("http://94.237.3.166:8089/postlmhada/getAllUsers").then(
+      (result) => {
+        console.log("lllll", localStorage.getItem("Username"));
+        setData(result.data);
+        setIsLoading(false);
+        if (localStorage.getItem("Username") === "admin") {
+          setTableData(result.data);
+        } else {
+          //setData([result.data[0]]);
+        }
 
-      // console.log("result", result);
-    });
+        console.log("result", result);
+      }
+    );
   };
 
   // const getCustomerData = (data) =>
@@ -130,10 +144,48 @@ const Application = () => {
   };
 
   const columns = [
+    // {
+    //   title: "Application Id",
+    //   dataIndex: "appReference",
+    //   key: "appReference",
+    //   label: "Application Id",
+    // },
+    // {
+    //   title: "Applicant Name",
+    //   dataIndex: "customerName",
+    //   label: "Applicant Name",
+    // },
+    // {
+    //   title: "Mobile",
+    //   dataIndex: "mobileNo",
+    //   label: "Mobile",
+    // },
+    // {
+    //   title: "Email",
+    //   dataIndex: "emailId",
+    //   label: "Email",
+    // },
+    // {
+    //   title: "status",
+    //   dataIndex: "status",
+    //   label: "status",
+    //   render: (text, record) => {
+    //     return <Tag color="red">{text}</Tag>;
+    //   },
+    // },
+    // {
+    //   title: "Action",
+    //   key: "action",
+    //   render: (text, record) => (
+    //     <Space size="middle">
+    //       <a onClick={() => onEdit(record)}>Edit</a>
+    //     </Space>
+    //   ),
+    // },
     {
       title: "Application Id",
-      dataIndex: "appReference",
-      key: "appReference",
+      dataIndex: "id",
+      key: "id",
       label: "Application Id",
     },
     {
@@ -147,26 +199,45 @@ const Application = () => {
       label: "Mobile",
     },
     {
-      title: "Email",
-      dataIndex: "emailId",
-      label: "Email",
+      title: "Scheme Name",
+      dataIndex: "mhadaUserName",
+      // width: 250,
+      // render: (text, record) => {
+      //   return <Space size="middle">{record?.scheme?.schemeName}</Space>;
+      // },
     },
     {
-      title: "status",
-      dataIndex: "status",
-      label: "status",
+      title: "Flat No",
+      dataIndex: "flatNo",
+      key: "flatNo",
       render: (text, record) => {
-        return <Tag color="red">{text}</Tag>;
+        return <Space size="middle">{record?.flat?.flatNo}</Space>;
       },
     },
     {
-      title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <Space size="middle">
-          <a onClick={() => onEdit(record)}>Edit</a>
-        </Space>
-      ),
+      title: "Building No",
+      dataIndex: "buildingNo",
+      key: "buildingNo",
+      render: (text, record) => {
+        return <Space size="middle">{record?.flat?.buildingNo}</Space>;
+      },
+    },
+    {
+      title: "Floor No",
+      dataIndex: "floorNo",
+      key: "floorNo",
+      render: (text, record) => {
+        return <Space size="middle">{record?.flat?.floorNo}</Space>;
+      },
+    },
+    {
+      title: "status",
+      dataIndex: "activeFlag",
+      label: "status",
+      width: 150,
+      render: (text, record) => {
+        return <Tag color="red">{text || "Not Available"}</Tag>;
+      },
     },
   ];
 
@@ -244,240 +315,51 @@ const Application = () => {
     <>
       <Header />
       <MenuBar />
+      <div className={classes.container1}>
+        {/* <div className={classes.table}> */}
+        <Upload
+          accept=".txt, .csv"
+          showUploadList={false}
+          beforeUpload={(file) => {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+              console.log(e.target.result);
+            };
+            reader.readAsText(file);
+            //setTableData(reader);
+            // Prevent upload
+            return false;
+          }}
+        >
+          <Button icon={<UploadOutlined />}>Click to Upload</Button>
+        </Upload>
+      </div>
+      {/* </div> */}
       <div className={classes.container}>
-        <div className={classes.table}>
-          {/* <Form
-            name="dynamic_form_nest_item"
-            onFinish={onFinish}
-            autoComplete="off"
-            form={form}
-          >
-            <Form.List name="field">
-              {(fields, { add, remove }) => (
-                <>
-                  <Space
-                    style={{ display: "flex", marginBottom: 8 }}
-                    align="baseline"
-                  >
-                    <Form.Item
-                      name="area"
-                      rules={[{ required: true, message: "Missing area" }]}
-                      style={{ width: 250 }}
-                    >
-                      <Select
-                        options={areas}
-                        onChange={handleChange}
-                        placeholder="AND"
-                      />
-                    </Form.Item>
-                    <Form.Item>
-                      <Button
-                        type="dashed"
-                        onClick={() => add()}
-                        icon={<PlusOutlined />}
-                        style={{ width: 30 }}
-                      ></Button>
-                    </Form.Item>
-                  </Space>
-                  <Space
-                    //key={key}
-                    style={{ display: "flex", marginBottom: 8 }}
-                    align="baseline"
-                  >
-                    <Form.Item style={{ width: 200 }}>
-                      <Select
-                        options={field}
-                        onChange={handleChange}
-                        placeholder="Application Id"
-                      />
-                    </Form.Item>
-                    <Form.Item style={{ width: 200 }}>
-                      <Select
-                        options={check}
-                        onChange={handleChange}
-                        placeholder="equal"
-                      />
-                    </Form.Item>
-                    <Form.Item>
-                      <Input />
-                    </Form.Item>
-                  </Space>
-
-                  {fields.map(({ key, name, fieldKey, ...restField }) => (
-                    <Space
-                      key={key}
-                      style={{ display: "flex", marginBottom: 8 }}
-                      align="baseline"
-                    >
-                      <Form.Item
-                        {...restField}
-                        name={[name, "first"]}
-                        fieldKey={[fieldKey, "first"]}
-                        name="area"
-                        rules={[{ required: true, message: "Missing area" }]}
-                        rules={[
-                          { required: true, message: "Missing first name" },
-                        ]}
-                        style={{ width: 200 }}
-                      >
-                        <Select
-                          options={columns}
-                          onChange={handleChange}
-                          placeholder="Application Id"
-                        />
-                      </Form.Item>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "last"]}
-                        fieldKey={[fieldKey, "last"]}
-                        rules={[
-                          { required: true, message: "Missing last name" },
-                        ]}
-                        style={{ width: 200 }}
-                      >
-                        <Select
-                          options={columns}
-                          onChange={handleChange}
-                          placeholder="equal"
-                        />
-                      </Form.Item>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "last"]}
-                        fieldKey={[fieldKey, "last"]}
-                        rules={[
-                          { required: true, message: "Missing last name" },
-                        ]}
-                      >
-                        <Input />
-                      </Form.Item>
-
-                      <MinusCircleOutlined onClick={() => remove(name)} />
-                    </Space>
-                  ))}
-                </>
-              )}
-            </Form.List>
-            <Form.Item>
-              <Button type="primary" onClick={Search}>
-                Find{" "}
-              </Button>
-            </Form.Item>
-          </Form> */}
-          <Form
-            form={form}
-            name="dynamic_form_nest_item"
-            onFinish={onFinish}
-            autoComplete="off"
-          >
-            <Form.Item
-              name="area"
-              //label="Area"
-              rules={[{ required: true, message: "Missing area" }]}
-              style={{ width: 250 }}
-            >
-              <Select options={areas} onChange={handleChange} />
-            </Form.Item>
-            <Form.List name="fields">
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map((field) => (
-                    <Space key={field.key} align="baseline">
-                      <Form.Item
-                        noStyle
-                        shouldUpdate={(prevValues, curValues) =>
-                          prevValues.area !== curValues.area ||
-                          prevValues.sights !== curValues.sights ||
-                          prevValues.fields !== curValues.fields
-                        }
-                      >
-                        {() => (
-                          <Form.Item
-                            {...field}
-                            //label="Sight"
-                            name={[field.name, "sight"]}
-                            fieldKey={[field.fieldKey, "sight"]}
-                            rules={[
-                              { required: true, message: "Missing sight" },
-                            ]}
-                          >
-                            <Select
-                              disabled={!form.getFieldValue("area")}
-                              style={{ width: 130 }}
-                            >
-                              {(sights[form.getFieldValue("area")] || []).map(
-                                (item) => (
-                                  <Option key={item} value={item}>
-                                    {item}
-                                  </Option>
-                                )
-                              )}
-                            </Select>
-                          </Form.Item>
-                        )}
-                      </Form.Item>
-
-                      <Form.Item
-                        {...field}
-                        // label="label"
-                        name={[field.name, "fields"]}
-                        fieldKey={[field.fieldKey, "fields"]}
-                        rules={[{ required: true, message: "Missing fields" }]}
-                      >
-                        <Select
-                          disabled={!form.getFieldValue("area")}
-                          style={{ width: 130 }}
-                        >
-                          {(fields[form.getFieldValue("area")] || []).map(
-                            (item) => (
-                              <Option key={item} value={item}>
-                                {item}
-                              </Option>
-                            )
-                          )}
-                        </Select>
-                      </Form.Item>
-                      <Input />
-
-                      <MinusCircleOutlined onClick={() => remove(field.name)} />
-                    </Space>
-                  ))}
-                  <Form.Item>
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      icon={<PlusOutlined />}
-                      style={{ width: 30 }}
-                    ></Button>
-                  </Form.Item>
-                </>
-              )}
-            </Form.List>
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-          <Search
-            placeholder="Search by id"
-            allowClear
-            enterButton="Search"
-            onSearch={onSearch}
-            style={{ width: 300, marginBottom: "10px" }}
-          />
-          <Table
-            dataSource={tableData}
-            columns={columns}
-            rowKey={(row) => row.id}
-            bordered
-            size="middle"
-            scroll={{ x: "calc(700px + 50%)", y: 400 }}
-            loading={isLoading}
-          />
+        <Search
+          placeholder="Search by id"
+          allowClear
+          enterButton="Search"
+          onSearch={onSearch}
+          style={{ width: 300, marginBottom: "10px" }}
+        />
+        <Table
+          dataSource={tableData}
+          columns={columns}
+          rowKey={(row) => row.id}
+          bordered
+          size="middle"
+          scroll={{ x: "calc(700px + 50%)", y: 400 }}
+          loading={isLoading}
+        />
+        <div className={classes.btn}>
+          <Button htmlType="submit" type="primary">
+            Save & Validate
+          </Button>
         </div>
       </div>
+
       <Modal
         title="Edit"
         visible={isModalVisible}

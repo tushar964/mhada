@@ -63,7 +63,7 @@ const columns = [
   },
   {
     title: "Address",
-    dataIndex: "currentAddress",
+    dataIndex: "city",
   },
   {
     title: "Pan Card",
@@ -93,10 +93,41 @@ const rowSelection = {
 const BroadCastWinner = () => {
   const [selectionType, setSelectionType] = useState("checkbox");
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [schemeData, setSchemeData] = useState([]);
+
+  useEffect(() => {
+    getSchemeData();
+    // eslint-disable-next-line no-use-before-define
+  }, []);
+  const getSchemeData = () => {
+    setIsLoading(true);
+    Axios.get("http://94.237.3.166:8089/postlmhada/getAllScheme").then(
+      (result) => {
+        console.log("scheme", result);
+        // setSchemeData(newSchemeData);
+
+        const newSchemeData = result.data.map((cvalue) => {
+          return {
+            label: cvalue.lottery.lotteryName,
+            value: cvalue.lottery.lotteryName,
+            // label: cvalue.schemeName,
+            // value: cvalue.schemeName,
+          };
+        });
+        console.log("newSchemeData", newSchemeData);
+        setSchemeData(newSchemeData);
+        // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
+        // dispatch(action);
+
+        setIsLoading(false);
+      }
+    );
+  };
 
   useEffect(() => {
     //debugger;
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllCustomers").then(
+    Axios.get("http://94.237.3.166:8089/postlmhada/getAllUsers").then(
       (result) => {
         console.log("lllll", localStorage.getItem("Username"));
         setData(result.data);
@@ -127,9 +158,15 @@ const BroadCastWinner = () => {
       <div className={classes.container}>
         <Input.Group compact>
           Lottory Event:
-          <Select defaultValue="" style={{ width: "20%" }}>
-            <Option value="Sign Up">Sign Up</Option>
-            <Option value="Sign In">Sign In</Option>
+          <Select
+            defaultValue=""
+            style={{ width: "20%" }}
+            options={schemeData}
+            showSearch
+            allowClear={true}
+          >
+            {/* <Option value="Sign Up">Sign Up</Option>
+            <Option value="Sign In">Sign In</Option> */}
           </Select>
           {/* <AutoComplete
           style={{ width: "70%" }}
@@ -140,9 +177,15 @@ const BroadCastWinner = () => {
         <br />
         <Input.Group compact>
           Scheme code:
-          <Select style={{ width: "20%" }} defaultValue="">
-            <Option value="Home">Home</Option>
-            <Option value="Company">Company</Option>
+          <Select
+            style={{ width: "20%" }}
+            defaultValue=""
+            options={schemeData}
+            showSearch
+            allowClear={true}
+          >
+            {/* <Option value="Home">Home</Option>
+            <Option value="Company">Company</Option> */}
           </Select>
           {/* <Cascader
           style={{ width: "70%" }}
