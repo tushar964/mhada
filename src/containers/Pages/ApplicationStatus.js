@@ -17,7 +17,7 @@ import { UploadOutlined } from "@ant-design/icons";
 
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
-import classes from "./styles.module.css";
+import classes from "./ApplicationStatus.module.css";
 import api from "../../../src/services/api";
 
 const { Option } = Select;
@@ -85,7 +85,7 @@ const check = [
   { label: "is not in", value: "is not in" },
 ];
 
-const Application = () => {
+const ApplicationStatus = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -95,20 +95,20 @@ const Application = () => {
 
   const getCustomerData = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllUsers").then(
-      (result) => {
-        console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data);
-        setIsLoading(false);
-        if (localStorage.getItem("Username") === "admin") {
-          setTableData(result.data.content);
-        } else {
-          //setData([result.data[0]]);
-        }
-
-        console.log("result", result);
+    Axios.get(
+      "http://94.237.3.166:8089/postlmhada/getAllCustomers?pageSize=10&pageNo=3&sortBy=id"
+    ).then((result) => {
+      console.log("lllll", localStorage.getItem("Username"));
+      setData(result.data.content);
+      setIsLoading(false);
+      if (localStorage.getItem("Username") === "admin") {
+        setTableData(result.data.content);
+      } else {
+        //setData([result.data[0]]);
       }
-    );
+
+      console.log("result", result);
+    });
   };
 
   // const getCustomerData = (data) =>
@@ -246,37 +246,37 @@ const Application = () => {
     setIsModalVisible(true);
   };
 
+  //   const onFinish = (values) => {
+  //     console.log("Received values of form:", values);
+  //   };
+
   const onFinish = (values) => {
-    console.log("Received values of form:", values);
+    console.log("Success:", values);
+    setIsLoading(true);
+    const newDataSource = data.map((item) => {
+      if (item.key === form.getFieldsValue().key) {
+        return form.getFieldsValue();
+      } else {
+        return item;
+      }
+    });
+
+    //update status
+    api
+      .post("/updateCustomerStatus", {
+        appReference: form.getFieldsValue().appReference,
+        status: form.getFieldsValue().status,
+      })
+      .then((result) => {
+        getCustomerData();
+        setIsModalVisible(false);
+        setIsLoading(false);
+      });
+
+    // setData(newDataSource);
+    setIsModalVisible(false);
+    //console.log("rt", newDataSource, "newDataSource");
   };
-
-  // const onFinish = (values) => {
-  //   console.log("Success:", values);
-  //   setIsLoading(true);
-  //   // const newDataSource = data.map((item) => {
-  //   //   if (item.key === form.getFieldsValue().key) {
-  //   //     return form.getFieldsValue();
-  //   //   } else {
-  //   //     return item;
-  //   //   }
-  //   // });
-
-  //   // update status
-  //   api
-  //     .post("/updateCustomerStatus", {
-  //       appReference: form.getFieldsValue().appReference,
-  //       status: form.getFieldsValue().status,
-  //     })
-  //     .then((result) => {
-  //       getCustomerData();
-  //       setIsModalVisible(false);
-  //       setIsLoading(false);
-  //     });
-
-  //   // setData(newDataSource);
-  //   setIsModalVisible(false);
-  //   //console.log("rt", newDataSource, "newDataSource");
-  // };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -462,4 +462,4 @@ const Application = () => {
   );
 };
 
-export default Application;
+export default ApplicationStatus;

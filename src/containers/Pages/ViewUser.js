@@ -83,7 +83,7 @@ const ViewUser = () => {
     Axios.get("http://94.237.3.166:8089/postlmhada/getAllUsers").then(
       (result) => {
         //console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data);
+        setData(result.data.content);
         setIsLoading(false);
         console.log("result", result);
       }
@@ -153,21 +153,22 @@ const ViewUser = () => {
   };
 
   const onFinish = (values) => {
-    console.log(values, "values");
+    console.log("values", values);
+    const postdata = {
+      mhadaUserName: values.mhadaUserName,
+      emailId: form.getFieldsValue().emailId,
+      age: form.getFieldsValue().age,
+      mobileNo: form.getFieldsValue().mobileNo,
+      pincode: form.getFieldsValue().pincode,
+      address: form.getFieldsValue().address,
+      designation: form.getFieldsValue().designation,
+      role: form.getFieldsValue().role,
+      id: form.getFieldsValue().id,
+    };
     if (formtype === "add") {
       console.log("--emailId---");
-      const values = {
-        mhadaUserName: form.getFieldsValue().mhadaUserName,
-        emailId: form.getFieldsValue().emailId,
-        age: form.getFieldsValue().age,
-        mobileNo: form.getFieldsValue().mobileNo,
-        pincode: form.getFieldsValue().pincode,
-        address: form.getFieldsValue().address,
-        designation: form.getFieldsValue().designation,
-        role: form.getFieldsValue().role,
-        id: form.getFieldsValue().id,
-      };
-      Axios.post("http://94.237.3.166:8089/postlmhada/user", values).then(
+
+      Axios.post("http://94.237.3.166:8089/postlmhada/user", postdata).then(
         (result) => {
           getUsersData();
           setIsModalVisible(false);
@@ -177,13 +178,13 @@ const ViewUser = () => {
     } else if (formtype === "edit") {
       console.log("--emailId---");
 
-      const formData = {
-        ...values,
-        //lottery: record,
-      };
+      // const formData = {
+      //   ...values,
+      //   //lottery: record,
+      // };
       Axios.post(
         "http://94.237.3.166:8089/postlmhada/updateUsers",
-        formData
+        postdata
       ).then((result) => {
         getUsersData();
         setIsModalVisible(false);
@@ -196,11 +197,48 @@ const ViewUser = () => {
     console.log("Failed:", errorInfo);
   };
 
+  const handleSearch = (text, values) => {
+    //setSearchText(text.trim());
+    console.log(text + "---on search---" + values);
+    Axios.get(
+      "http://94.237.3.166:8089/postlmhada/getUsersBySearch?inputString=" + text
+    ).then((result) => {
+      setData(result.data.content);
+      setIsLoading(false);
+      console.log("result", text, values, result);
+    });
+    // setData({
+    //   //searchText: selectedKeys[0],
+    //   searchedColumn: columns,
+    // });
+  };
+  // const filterTableData = (data, text) => {
+  //   if (text && text.trim() !== "") {
+  //     const newData = data.filter(
+  //       (item) => item.va && item.mhadaUserName.indexOf(text) > -1
+  //     );
+  //     console.log("result", data);
+
+  //     return newData;
+  //   } else {
+  //     return data;
+  //   }
+
+  //   //setSearchText(text);
+  // };
+
   const onSearch = (text) => {
-    if (!isNaN(text)) {
-      const newData = data.filter((item) => item.key === parseInt(text));
-      console.log("text:", newData);
-      setTableData(newData);
+    if (text) {
+      Axios.get(
+        "http://94.237.3.166:8089/postlmhada/getUsersBySearch?inputString={text}"
+      ).then((result) => {
+        setData(result.data.content);
+        setIsLoading(false);
+        console.log("result", result);
+      });
+      // const newData = data.filter((item) => item.key === parseInt(text));
+      // console.log("text:", newData);
+      // setTableData(newData);
     }
     setSearchText(text);
   };
@@ -240,16 +278,16 @@ const ViewUser = () => {
 
   const columns = [
     {
-      title: "Application Id",
+      title: "Sr No",
       dataIndex: "id",
       key: "id",
-      label: "Application Id",
+      label: "Sr No",
     },
 
     {
-      title: "Firstname ",
+      title: "Name ",
       dataIndex: "mhadaUserName",
-      label: "mhadaUserName",
+      label: "Name",
     },
     {
       title: "Email Id ",
@@ -267,76 +305,51 @@ const ViewUser = () => {
     // },
 
     // {
-    //   title: " Gender",
-    //   dataIndex: "gender",
-    //   key: "gender",
-    //   // render: (text, record) => {
-    //   //   return <Space size="middle">{record?.flat?.floorNo}</Space>;
-    //   // },
+    //   title: " Age",
+    //   dataIndex: "age",
     // },
-    {
-      title: " Age",
-      dataIndex: "age",
-      // key: "age",
-      // render: (text, record) => {
-      //   return <Space size="middle">{record?.flat?.floorNo}</Space>;
-      // },
-    },
     {
       title: " Address",
       dataIndex: "address",
-      // key: "address",
-      // render: (text, record) => {
-      //   return <Space size="middle">{record?.flat?.floorNo}</Space>;
-      // },
     },
-    {
-      title: " PinCode",
-      dataIndex: "pincode",
-      // key: "pincode",
-      // render: (text, record) => {
-      //   return <Space size="middle">{record?.flat?.floorNo}</Space>;
-      // },
-    },
+    // {
+    //   title: " PinCode",
+    //   dataIndex: "pincode",
+    // },
     {
       title: " Role",
       dataIndex: "role",
-      // key: "role",
     },
 
     {
       title: " Designation",
       dataIndex: "designation",
-      // key: "designation",
     },
-    {
-      title: "status",
-      dataIndex: "activeFlag",
-      label: "status",
-      width: 150,
-      render: (text, record) => {
-        return <Tag color="red">{text || "Not Available"}</Tag>;
-      },
-    },
+    // {
+    //   title: "status",
+    //   dataIndex: "activeFlag",
+    //   label: "status",
+    //   width: 150,
+    //   render: (text, record) => {
+    //     return <Tag color="red">{text || "Not Available"}</Tag>;
+    //   },
+    // },
     {
       title: "Action",
-      // key: "action",
+
       label: "status",
       width: 150,
       render: (text, record) => {
         return (
           <Space size="middle">
             <a onClick={() => onEdit(record)}>Edit</a>
-            {/* <a>Edit</a> */}
-            {/* <a onClick={() => onDelete(record)}>Delete</a> */}
-            {/* formData.length >= 1 ? ( */}
+
             <Popconfirm
               title="Sure to delete?"
-              onConfirm={() => handleDelete(record.key)}
+              onConfirm={() => handleDelete(record)}
             >
               <a>Delete</a>
             </Popconfirm>
-            {/* ) : null, */}
           </Space>
         );
       },
@@ -352,13 +365,10 @@ const ViewUser = () => {
           placeholder="Search by id"
           allowClear
           enterButton="Search"
-          onSearch={onSearch}
+          onSearch={handleSearch}
           style={{ width: 300, marginBottom: "10px" }}
         />
-        {/* <Input placeholder="Basic usage" style={{ width: 150 }} />
-        <div className={classes.btn}>
-          <Button type="primary">Search</Button>
-        </div> */}
+
         <div className={classes.btn1}>
           <Button type="primary" onClick={showModal}>
             Add New Users
@@ -368,12 +378,13 @@ const ViewUser = () => {
       <div className={classes.table}>
         <Table
           dataSource={data}
+          // dataSource={filterTableData(data, searchText)}
           loading={isLoading}
           columns={columns}
           rowKey={(row) => row.id}
           bordered
           size="middle"
-          scroll={{ x: "calc(700px + 50%)", y: 400 }}
+          scroll={{ x: "calc(500px + 50%)", y: 400 }}
           style={{ padding: "15px" }}
         />
 
@@ -384,12 +395,6 @@ const ViewUser = () => {
           onCancel={handleCancel}
           //footer={null}
         >
-          {/* <Modal
-          size="sm"
-          show={smShow}
-          onHide={() => setSmShow(false)}
-          aria-labelledby="example-modal-sizes-title-sm"
-        > */}
           <div className={classes.container}>
             <Form
               {...formItemLayout}
@@ -404,9 +409,16 @@ const ViewUser = () => {
               //layout="inline"
             >
               <Form.Item
+                name="id"
+                label="Application Id"
+                key="id"
+                hidden={true}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
                 name="mhadaUserName"
-                label="Firstname"
-                //tooltip="What do you want others to call you?"
+                label="Name"
                 rules={[
                   {
                     required: true,
@@ -416,22 +428,6 @@ const ViewUser = () => {
                 ]}
               >
                 <Input />
-              </Form.Item>
-              <Form.Item
-                name="id"
-                label="Application Id"
-                key="id"
-                hidden={true}
-                //tooltip="What do you want others to call you?"
-                rules={[
-                  {
-                    //required: true,
-                    message: "Please input your id!",
-                    whitespace: true,
-                  },
-                ]}
-              >
-                <InputNumber />
               </Form.Item>
 
               <Form.Item
@@ -460,14 +456,13 @@ const ViewUser = () => {
                   },
                 ]}
               >
-                <InputNumber />
+                <Input />
               </Form.Item>
               <Form.Item
                 name="address"
                 label="Address"
                 rules={[
                   {
-                    // type: "array",
                     required: true,
                     message: "Please select your habitual residence!",
                   },
@@ -493,7 +488,6 @@ const ViewUser = () => {
               <Form.Item
                 name="pincode"
                 label="pincode"
-                //tooltip="What do you want others to call you?"
                 rules={[
                   {
                     required: true,
@@ -507,7 +501,6 @@ const ViewUser = () => {
               <Form.Item
                 name="userName"
                 label="userName"
-                //tooltip="What do you want others to call you?"
                 rules={[
                   {
                     required: true,

@@ -12,6 +12,7 @@ import ActivateApplicantList from "../containers/Pages/ActivateApplicantList";
 import BroadCastWinner from "../containers/Pages/BroadCastWinner";
 import WaitingList from "../containers/Pages/WatingList";
 import SmsScreen from "../containers/Pages/SmsScreen";
+import ApplicationStatus from "../containers/Pages/ApplicationStatus";
 const Router = () => {
   return (
     <BrowserRouter>
@@ -55,6 +56,9 @@ const Router = () => {
         </Route>
         <Route path="/smsscreen">
           <SmsScreen />
+        </Route>
+        <Route path="/applicationstatus">
+          <ApplicationStatus />
         </Route>
         <Route path="/">
           <Login />

@@ -130,7 +130,7 @@ const BroadCastWinner = () => {
     Axios.get("http://94.237.3.166:8089/postlmhada/getAllUsers").then(
       (result) => {
         console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data);
+        setData(result.data.content);
         // if (localStorage.getItem("Username") === "admin") {
         //   setTableData(result.data);
         // } else {
