@@ -11,7 +11,7 @@ import {
   Select,
   Upload,
   Menu,
-  Dropdown,
+  message,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
@@ -23,10 +23,6 @@ import api from "../../../src/services/api";
 const { Option } = Select;
 const { Search } = Input;
 
-const areas = [
-  { label: "AND", value: "AND" },
-  { label: "OR", value: "OR" },
-];
 // const field = [
 //   { label: "Application Id", value: "appReference" },
 //   { label: "Applicant Name", value: "customerName " },
@@ -35,56 +31,6 @@ const areas = [
 //   { label: "status", value: "status" },
 // ];
 
-// const sights = {
-//   Beijing: ['Tiananmen', 'Great Wall'],
-//   Shanghai: ['Oriental Pearl', 'The Bund'],
-// };
-
-const sights = {
-  AND: ["Application Id", "Applicant Name", "Mobile", "Email", "status"],
-  OR: ["Application Id", "Applicant Name", "Mobile", "Email", "status"],
-};
-const fields = {
-  AND: [
-    "equal",
-    "not equal",
-    "less",
-    "less or equal",
-    "greater",
-    "greater or equal",
-    ,
-    "null",
-    "is not null",
-    "is in",
-    "is not in",
-  ],
-  AND: [
-    "equal",
-    "not equal",
-    "less",
-    "less or equal",
-    "greater",
-    "greater or equal",
-    ,
-    "null",
-    "is not null",
-    "is in",
-    "is not in",
-  ],
-};
-const check = [
-  { label: "equal", value: "equal" },
-  { label: "not equal", value: "not equal" },
-  { label: "less", value: "less" },
-  { label: "less or equal", value: "less or equal" },
-  { label: "greater", value: "greater" },
-  { label: "greater or equal", value: "greater or equal" },
-  { label: "null", value: "null" },
-  { label: "is not null", value: "is not null" },
-  { label: "is in", value: "is in" },
-  { label: "is not in", value: "is not in" },
-];
-
 const ApplicationStatus = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -92,36 +38,121 @@ const ApplicationStatus = () => {
   const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
   const [isLoading, setIsLoading] = useState(false);
+  const [schemeType, setSchemeType] = useState("");
+  const [schemeData, setSchemeData] = useState([]);
+  const [selectedCode, setSelectedCode] = useState(null);
+  const [pagination, setPagination] = useState({
+    pageNumber: 1,
+    pageSize: 10,
+    total: 0,
+  });
+
+  useEffect(() => {
+    getSchemeData();
+    // eslint-disable-next-line no-use-before-define
+  }, []);
+
+  const getSchemeData = () => {
+    setIsLoading(true);
+    Axios.get("http://94.237.3.166:8089/postlmhada/getAllScheme").then(
+      (result) => {
+        console.log("scheme", result);
+
+        const newSchemeData = result.data.map((cvalue) => {
+          return {
+            label: cvalue.schemeCode,
+            value: cvalue.schemeCode,
+          };
+        });
+
+        console.log("newSchemeData", result);
+        setSchemeData(newSchemeData);
+        // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
+        // dispatch(action);
+
+        setIsLoading(false);
+      }
+    );
+  };
+
+  //   useEffect(() => {
+  //       if(selectedCode)
+  //     getCustomerData();
+  //   }, [pagination.pageNumber]);
+
+  useEffect(
+    () => {
+      console.log("selectedCode", selectedCode);
+      if (selectedCode) {
+        getCustomerDataByScheme(selectedCode);
+      } else {
+        getCustomerData();
+      }
+    },
+
+    //getCustomerData(selectedScheme);
+    [selectedCode, pagination.pageNumber]
+  );
 
   const getCustomerData = () => {
     setIsLoading(true);
     Axios.get(
-      "http://94.237.3.166:8089/postlmhada/getAllCustomers?pageSize=10&pageNo=3&sortBy=id"
+      `http://94.237.3.166:8089/postlmhada/getAllCustomers?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
     ).then((result) => {
-      console.log("lllll", localStorage.getItem("Username"));
-      setData(result.data.content);
-      setIsLoading(false);
-      if (localStorage.getItem("Username") === "admin") {
-        setTableData(result.data.content);
-      } else {
-        //setData([result.data[0]]);
-      }
-
       console.log("result", result);
+
+      //   console.log("lllll", localStorage.getItem("Username"));
+      setTableData(result.data.content);
+      setPagination({
+        pageNumber: result.data.pageable.pageNumber || 1,
+        pageSize: result.data.pageable.pageSize || 10,
+        total: result.data.totalElements || 0,
+      });
+      setIsLoading(false);
     });
   };
 
-  // const getCustomerData = (data) =>
-  //   api.get(`/getAllCustomers/?setData=${data}`);
+  useEffect(
+    () => {
+      console.log("selectedCode", selectedCode);
+      if (selectedCode) {
+        getCustomerDataByScheme(selectedCode);
+      } else {
+        // getCustomerData();
+      }
+    },
 
-  useEffect(() => {
-    getCustomerData();
-    console.log("-----on application--");
-    //debugger;
+    //getCustomerData(selectedScheme);
+    [selectedCode]
+  );
 
-    // console.log("yu", "result");
-    //debugger;
-  }, []);
+  const getCustomerDataByScheme = (selectedCode) => {
+    setIsLoading(true);
+    Axios.get(
+      `http://94.237.3.166:8089/postlmhada/getCustomersBySchemeCode/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
+    )
+      .then((result) => {
+        console.log("reult", result);
+        if (result && result.data.content) {
+          console.log("result123", result);
+          setTableData(result.data.content);
+          setPagination({
+            pageNumber: result.data.pageable.pageNumber,
+            pageSize: result.data.pageable.pageSize,
+            total: result.data.totalElements,
+          });
+        }
+        setIsLoading(false);
+      })
+      .catch(function (error) {
+        // handle error
+        setTableData([]);
+
+        console.log(error?.response?.data?.error);
+        onError(error?.response?.data?.error || "Waiting Schemedata");
+        setIsLoading(false);
+      });
+  };
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -142,7 +173,9 @@ const ApplicationStatus = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-
+  const onError = (error) => {
+    message.error(error);
+  };
   const columns = [
     // {
     //   title: "Application Id",
@@ -160,11 +193,7 @@ const ApplicationStatus = () => {
     //   dataIndex: "mobileNo",
     //   label: "Mobile",
     // },
-    // {
-    //   title: "Email",
-    //   dataIndex: "emailId",
-    //   label: "Email",
-    // },
+
     // {
     //   title: "status",
     //   dataIndex: "status",
@@ -173,15 +202,7 @@ const ApplicationStatus = () => {
     //     return <Tag color="red">{text}</Tag>;
     //   },
     // },
-    // {
-    //   title: "Action",
-    //   key: "action",
-    //   render: (text, record) => (
-    //     <Space size="middle">
-    //       <a onClick={() => onEdit(record)}>Edit</a>
-    //     </Space>
-    //   ),
-    // },
+    //
     {
       title: "Application Id",
       dataIndex: "id",
@@ -199,45 +220,36 @@ const ApplicationStatus = () => {
       label: "Mobile",
     },
     {
+      title: "Email",
+      dataIndex: "emailId",
+      label: "Email",
+    },
+    {
       title: "Scheme Name",
       dataIndex: "mhadaUserName",
-      // width: 250,
-      // render: (text, record) => {
-      //   return <Space size="middle">{record?.scheme?.schemeName}</Space>;
-      // },
-    },
-    {
-      title: "Flat No",
-      dataIndex: "flatNo",
-      key: "flatNo",
+      width: 250,
       render: (text, record) => {
-        return <Space size="middle">{record?.flat?.flatNo}</Space>;
+        return <Space size="middle">{record?.scheme?.schemeName}</Space>;
       },
     },
-    {
-      title: "Building No",
-      dataIndex: "buildingNo",
-      key: "buildingNo",
-      render: (text, record) => {
-        return <Space size="middle">{record?.flat?.buildingNo}</Space>;
-      },
-    },
-    {
-      title: "Floor No",
-      dataIndex: "floorNo",
-      key: "floorNo",
-      render: (text, record) => {
-        return <Space size="middle">{record?.flat?.floorNo}</Space>;
-      },
-    },
+
     {
       title: "status",
-      dataIndex: "activeFlag",
+      dataIndex: "status",
       label: "status",
       width: 150,
       render: (text, record) => {
         return <Tag color="red">{text || "Not Available"}</Tag>;
       },
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (text, record) => (
+        <Space size="middle">
+          <a onClick={() => onEdit(record)}>Edit</a>
+        </Space>
+      ),
     },
   ];
 
@@ -246,9 +258,10 @@ const ApplicationStatus = () => {
     setIsModalVisible(true);
   };
 
-  //   const onFinish = (values) => {
-  //     console.log("Received values of form:", values);
-  //   };
+  const onClear = () => {
+    getCustomerData();
+    setIsModalVisible(false);
+  };
 
   const onFinish = (values) => {
     console.log("Success:", values);
@@ -261,19 +274,20 @@ const ApplicationStatus = () => {
       }
     });
 
-    //update status
+    // update status
     api
       .post("/updateCustomerStatus", {
-        appReference: form.getFieldsValue().appReference,
+        mobileNo: form.getFieldsValue().mobileNo,
         status: form.getFieldsValue().status,
       })
       .then((result) => {
-        getCustomerData();
+        console.log("rt", result, "newDataSource");
+        getCustomerDataByScheme();
         setIsModalVisible(false);
         setIsLoading(false);
       });
 
-    // setData(newDataSource);
+    setData(newDataSource);
     setIsModalVisible(false);
     //console.log("rt", newDataSource, "newDataSource");
   };
@@ -305,45 +319,89 @@ const ApplicationStatus = () => {
     }
     //setSearchText(text);
   };
+
+  const handleSearch = (text) => {
+    setSearchText(text.trim());
+    console.log(text + "---on search---");
+    Axios.get(
+      `http://94.237.3.166:8089/postlmhada/getCustomersBySearch?inputString=${text}`
+    ).then((result) => {
+      setTableData(result.data.content);
+      setIsLoading(false);
+      console.log("result", text, result);
+    });
+  };
   console.log("tableData:", tableData);
 
   const handleChange = () => {
     form.setFieldsValue({ sights: [] });
   };
+  //   const handleOnChange = (text) => {
+  //     setIsLoading(true);
+  //     setSchemeType(text);
+  //     Axios.get(
+  //       `http://94.237.3.166:8089/postlmhada/getCustomerBySchemeCode/${text}/?pageNo=${1}&pageSize=${10}`
+  //     )
 
+  //       .then((result) => {
+  //         // console.log("result", result);
+  //         setTableData([]);
+  //         setTableData(result.data.content);
+  //         setPagination({
+  //           pageNumber: result.data.pageable.pageNumber,
+  //           pageSize: result.data.pageable.pageSize,
+  //           total: result.data.totalElements,
+  //         });
+
+  //         setIsLoading(false);
+  //       })
+  //       .catch(function (error) {
+  //         // handle error
+  //         setTableData([]);
+  //         console.log(error?.response?.data?.error);
+  //         onError(error?.response?.data?.error);
+  //         setIsLoading(false);
+  //       });
+  //   };
+  console.log("tableData", tableData);
   return (
     <>
       <Header />
       <MenuBar />
       <div className={classes.container1}>
         {/* <div className={classes.table}> */}
-        <Upload
-          accept=".txt, .csv"
-          showUploadList={false}
-          beforeUpload={(file) => {
-            const reader = new FileReader();
-
-            reader.onload = (e) => {
-              console.log(e.target.result);
-            };
-            reader.readAsText(file);
-            //setTableData(reader);
-            // Prevent upload
-            return false;
-          }}
-        >
-          <Button icon={<UploadOutlined />}>Click to Upload</Button>
-        </Upload>
-      </div>
-      {/* </div> */}
-      <div className={classes.container}>
         <Search
           placeholder="Search by id"
           allowClear
           enterButton="Search"
-          onSearch={onSearch}
+          onSearch={handleSearch}
+          onClear={onClear}
           style={{ width: 300, marginBottom: "10px" }}
         />
+        <Form.Item label="schemeCode">
+          <Select
+            showSearch
+            onClear={onClear}
+            allowClear={true}
+            style={{
+              width: 200,
+            }}
+            options={schemeData}
+            placeholder="schemeCode"
+            onSelect={(cvalue, options) => {
+              console.log("cvalue", cvalue, options);
+              setSelectedCode(cvalue);
+            }}
+            filterOption={(inputValue, options) =>
+              options.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
+          />
+        </Form.Item>
+      </div>
+      {/* </div> */}
+
+      <div className={classes.container}>
         <Table
           dataSource={tableData}
           columns={columns}
@@ -352,12 +410,29 @@ const ApplicationStatus = () => {
           size="middle"
           scroll={{ x: "calc(700px + 50%)", y: 400 }}
           loading={isLoading}
+          onChange={(page) => {
+            console.log("pagination", pagination);
+            setPagination({
+              ...pagination,
+              pageNumber: page.current,
+              // pageSize: pagination.pageSize,
+              // total: pagination.total,
+            });
+          }}
+          pagination={{
+            showSizeChanger: false,
+            showQuickJumper: true,
+            pageSize: pagination?.pageSize,
+            defaultCurrent: pagination?.pageNumber,
+            current: pagination?.pageNumber,
+            total: pagination?.total,
+          }}
         />
-        <div className={classes.btn}>
+        {/* <div className={classes.btn}>
           <Button htmlType="submit" type="primary">
             Save & Validate
           </Button>
-        </div>
+        </div> */}
       </div>
 
       <Modal
@@ -401,7 +476,7 @@ const ApplicationStatus = () => {
               },
             ]}
           >
-            <Input />
+            <Input disabled />
           </Form.Item>
           <Form.Item
             label="Mobile"

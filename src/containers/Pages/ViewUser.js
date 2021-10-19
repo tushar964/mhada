@@ -207,10 +207,6 @@ const ViewUser = () => {
       setIsLoading(false);
       console.log("result", text, values, result);
     });
-    // setData({
-    //   //searchText: selectedKeys[0],
-    //   searchedColumn: columns,
-    // });
   };
   // const filterTableData = (data, text) => {
   //   if (text && text.trim() !== "") {
