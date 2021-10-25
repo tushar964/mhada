@@ -23,14 +23,6 @@ import api from "../../../src/services/api";
 const { Option } = Select;
 const { Search } = Input;
 
-// const field = [
-//   { label: "Application Id", value: "appReference" },
-//   { label: "Applicant Name", value: "customerName " },
-//   { label: "Mobile", value: "mobileNo" },
-//   { label: "Email", value: "emailId" },
-//   { label: "status", value: "status" },
-// ];
-
 const ApplicationStatus = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
@@ -41,8 +33,10 @@ const ApplicationStatus = () => {
   const [schemeType, setSchemeType] = useState("");
   const [schemeData, setSchemeData] = useState([]);
   const [selectedCode, setSelectedCode] = useState(null);
+  const [selectedScheme, setSelectedScheme] = useState(null);
+
   const [pagination, setPagination] = useState({
-    pageNumber: 1,
+    pageNumber: +1,
     pageSize: 10,
     total: 0,
   });
@@ -60,6 +54,8 @@ const ApplicationStatus = () => {
 
         const newSchemeData = result.data.map((cvalue) => {
           return {
+            label: cvalue.schemeName,
+            value: cvalue.schemeName,
             label: cvalue.schemeCode,
             value: cvalue.schemeCode,
           };
@@ -82,16 +78,18 @@ const ApplicationStatus = () => {
 
   useEffect(
     () => {
-      console.log("selectedCode", selectedCode);
+      console.log("selectedCode", selectedCode, selectedScheme);
       if (selectedCode) {
         getCustomerDataByScheme(selectedCode);
+      } else if (selectedScheme && selectedScheme.trim() !== "") {
+        getCustomerDataByScheme(selectedScheme);
       } else {
         getCustomerData();
       }
     },
 
     //getCustomerData(selectedScheme);
-    [selectedCode, pagination.pageNumber]
+    [selectedCode, selectedScheme, pagination.pageNumber]
   );
 
   const getCustomerData = () => {
@@ -99,48 +97,42 @@ const ApplicationStatus = () => {
     Axios.get(
       `http://94.237.3.166:8089/postlmhada/getAllCustomers?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
     ).then((result) => {
-      console.log("result", result);
+      if (result && result.data.content) {
+        console.log("result", result);
 
-      //   console.log("lllll", localStorage.getItem("Username"));
-      setTableData(result.data.content);
-      setPagination({
-        pageNumber: result.data.pageable.pageNumber || 1,
-        pageSize: result.data.pageable.pageSize || 10,
-        total: result.data.totalElements || 0,
-      });
+        //   console.log("lllll", localStorage.getItem("Username"));
+        setTableData(result.data.content);
+        setPagination({
+          pageNumber: result.data.pageable.pageNumber || 1,
+          pageSize: result.data.pageable.pageSize || 10,
+          total: result.data.totalElements || 0,
+        });
+      }
       setIsLoading(false);
     });
   };
 
-  useEffect(
-    () => {
-      console.log("selectedCode", selectedCode);
-      if (selectedCode) {
-        getCustomerDataByScheme(selectedCode);
-      } else {
-        // getCustomerData();
-      }
-    },
-
-    //getCustomerData(selectedScheme);
-    [selectedCode]
-  );
-
   const getCustomerDataByScheme = (selectedCode) => {
     setIsLoading(true);
     Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getCustomersBySchemeCode/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
+      `http://94.237.3.166:8089/postlmhada/getCustomersBySchemeCode/${
+        (selectedCode, selectedScheme)
+      }?pageNo=${pagination?.pageNumber}&pageSize=${
+        pagination?.pageSize
+      }&sortBy=id`
     )
       .then((result) => {
-        console.log("reult", result);
         if (result && result.data.content) {
-          console.log("result123", result);
-          setTableData(result.data.content);
-          setPagination({
-            pageNumber: result.data.pageable.pageNumber,
-            pageSize: result.data.pageable.pageSize,
-            total: result.data.totalElements,
-          });
+          console.log("reult", result);
+          if (result && result.data.content) {
+            console.log("result123", result);
+            setTableData(result.data.content);
+            setPagination({
+              pageNumber: result.data.pageable.pageNumber,
+              pageSize: result.data.pageable.pageSize,
+              total: result.data.totalElements,
+            });
+          }
         }
         setIsLoading(false);
       })
@@ -176,38 +168,32 @@ const ApplicationStatus = () => {
   const onError = (error) => {
     message.error(error);
   };
-  const columns = [
-    // {
-    //   title: "Application Id",
-    //   dataIndex: "appReference",
-    //   key: "appReference",
-    //   label: "Application Id",
-    // },
-    // {
-    //   title: "Applicant Name",
-    //   dataIndex: "customerName",
-    //   label: "Applicant Name",
-    // },
-    // {
-    //   title: "Mobile",
-    //   dataIndex: "mobileNo",
-    //   label: "Mobile",
-    // },
+  // const incrementNumber = () => {
+  //   let i = -1;
+  //   return (id) => {
+  //     if (pagination.pageNumber === 1) {
+  //       return id++;
+  //     }
+  //     return (i = i + 1);
+  //   };
+  // };
 
-    // {
-    //   title: "status",
-    //   dataIndex: "status",
-    //   label: "status",
-    //   render: (text, record) => {
-    //     return <Tag color="red">{text}</Tag>;
-    //   },
-    // },
-    //
+  // const fromCurrentIndex = incrementNumber();
+  const columns = [
     {
-      title: "Application Id",
+      title: "Sr No",
+      width: 50,
       dataIndex: "id",
-      key: "id",
-      label: "Application Id",
+
+      // key: "id",
+
+      // label: "Sr No",
+      render: (value, item, inn) => {
+        return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
+      },
+      // render: (text, record, id) => {
+      //   return fromCurrentIndex(id);
+      // },
     },
     {
       title: "Applicant Name",
@@ -217,6 +203,7 @@ const ApplicationStatus = () => {
     {
       title: "Mobile",
       dataIndex: "mobileNo",
+      width: 150,
       label: "Mobile",
     },
     {
@@ -227,11 +214,23 @@ const ApplicationStatus = () => {
     {
       title: "Scheme Name",
       dataIndex: "mhadaUserName",
-      width: 250,
+      width: 200,
       render: (text, record) => {
-        return <Space size="middle">{record?.scheme?.schemeName}</Space>;
+        return (
+          <Space size="middle">
+            {record?.scheme?.schemeCode}-{record?.scheme?.schemeName}
+          </Space>
+        );
       },
     },
+    // {
+    //   title: "Scheme Code",
+    //   dataIndex: "mhadaUserName",
+    //   width: 80,
+    //   render: (text, record) => {
+    //     return <Space size="middle">{record?.scheme?.schemeCode}</Space>;
+    //   },
+    // },
 
     {
       title: "status",
@@ -245,6 +244,7 @@ const ApplicationStatus = () => {
     {
       title: "Action",
       key: "action",
+      width: 100,
       render: (text, record) => (
         <Space size="middle">
           <a onClick={() => onEdit(record)}>Edit</a>
@@ -275,19 +275,20 @@ const ApplicationStatus = () => {
     });
 
     // update status
-    api
-      .post("/updateCustomerStatus", {
-        mobileNo: form.getFieldsValue().mobileNo,
-        status: form.getFieldsValue().status,
-      })
-      .then((result) => {
-        console.log("rt", result, "newDataSource");
-        getCustomerDataByScheme();
-        setIsModalVisible(false);
-        setIsLoading(false);
-      });
+    Axios.post("http://94.237.3.166:8089/postlmhada/updateCustomerStatus", {
+      mobileNo: form.getFieldsValue().mobileNo,
+      status: form.getFieldsValue().status,
+      emailId: form.getFieldsValue().emailId,
+      appReference: form.getFieldsValue().appReference,
+    }).then((result) => {
+      console.log("rt", result, "newDataSource");
+      setTableData(newDataSource);
+      getCustomerData();
+      setIsModalVisible(false);
+      setIsLoading(false);
+    });
 
-    setData(newDataSource);
+    //setTableData(newDataSource);
     setIsModalVisible(false);
     //console.log("rt", newDataSource, "newDataSource");
   };
@@ -333,37 +334,11 @@ const ApplicationStatus = () => {
   };
   console.log("tableData:", tableData);
 
-  const handleChange = () => {
-    form.setFieldsValue({ sights: [] });
-  };
-  //   const handleOnChange = (text) => {
-  //     setIsLoading(true);
-  //     setSchemeType(text);
-  //     Axios.get(
-  //       `http://94.237.3.166:8089/postlmhada/getCustomerBySchemeCode/${text}/?pageNo=${1}&pageSize=${10}`
-  //     )
-
-  //       .then((result) => {
-  //         // console.log("result", result);
-  //         setTableData([]);
-  //         setTableData(result.data.content);
-  //         setPagination({
-  //           pageNumber: result.data.pageable.pageNumber,
-  //           pageSize: result.data.pageable.pageSize,
-  //           total: result.data.totalElements,
-  //         });
-
-  //         setIsLoading(false);
-  //       })
-  //       .catch(function (error) {
-  //         // handle error
-  //         setTableData([]);
-  //         console.log(error?.response?.data?.error);
-  //         onError(error?.response?.data?.error);
-  //         setIsLoading(false);
-  //       });
-  //   };
   console.log("tableData", tableData);
+
+  const handleChange = (cvalue) => {
+    console.log(`selected ${cvalue}`);
+  };
   return (
     <>
       <Header />
@@ -381,6 +356,7 @@ const ApplicationStatus = () => {
         <Form.Item label="schemeCode">
           <Select
             showSearch
+            onChange={handleChange}
             onClear={onClear}
             allowClear={true}
             style={{
@@ -391,12 +367,17 @@ const ApplicationStatus = () => {
             onSelect={(cvalue, options) => {
               console.log("cvalue", cvalue, options);
               setSelectedCode(cvalue);
+              setSelectedScheme(cvalue);
             }}
-            filterOption={(inputValue, options) =>
-              options.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-              -1
-            }
-          />
+            // filterOption={(inputValue, options) =>
+            //   options.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+            //   -1
+            // }
+          >
+            {/* <Option value={mhadaUserName} key={mhadaUserName}>
+              {mhadaUserName}
+            </Option> */}
+          </Select>
         </Form.Item>
       </div>
       {/* </div> */}
@@ -408,7 +389,7 @@ const ApplicationStatus = () => {
           rowKey={(row) => row.id}
           bordered
           size="middle"
-          scroll={{ x: "calc(700px + 50%)", y: 400 }}
+          scroll={{ x: "calc(500px + 50%)", y: 400 }}
           loading={isLoading}
           onChange={(page) => {
             console.log("pagination", pagination);

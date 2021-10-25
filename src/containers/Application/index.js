@@ -97,14 +97,9 @@ const Application = () => {
     setIsLoading(true);
     Axios.get("http://94.237.3.166:8089/postlmhada/getAllUsers").then(
       (result) => {
-        console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data);
         setIsLoading(false);
-        if (localStorage.getItem("Username") === "admin") {
-          setTableData(result.data.content);
-        } else {
-          //setData([result.data[0]]);
-        }
+
+        setTableData(result.data.content);
 
         console.log("result", result);
       }
