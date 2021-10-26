@@ -36,28 +36,52 @@ const MenuBar = () => {
         title="Master"
       >
         <SubMenu
-          onTitleClick={() => handleClickMenu("/adduser")}
-          key="sub11"
+          onTitleClick={() => handleClickMenu("/application")}
+          key="sub5"
           icon={<SettingOutlined />}
-          title="Add User"
+          title="Upload Draw Winner"
         ></SubMenu>
         <SubMenu
           onTitleClick={() => handleClickMenu("/viewuser")}
           key="sub7"
           icon={<SettingOutlined />}
-          title="View Mhada User"
+          title=" Mhada Users"
         ></SubMenu>
         <SubMenu
-          onTitleClick={() => handleClickMenu("/application")}
-          key="sub5"
+          onTitleClick={() => handleClickMenu("/adduser")}
+          key="sub15"
           icon={<SettingOutlined />}
-          title="View Application"
+          title="Add User"
         ></SubMenu>
         <SubMenu
           onTitleClick={() => handleClickMenu("/schemedetails")}
           key="sub9"
           icon={<SettingOutlined />}
           title="Scheme Details
+        "
+        ></SubMenu>
+        <SubMenu
+          onTitleClick={() => handleClickMenu("/smsscreen")}
+          key="sub16"
+          icon={<SettingOutlined />}
+          title="Sms Screen"
+        ></SubMenu>
+        <SubMenu
+          onTitleClick={() => handleClickMenu("/project")}
+          key="sub4"
+          icon={<SettingOutlined />}
+          title="Upload document"
+        >
+          {/* <Menu.Item key="5">photo </Menu.Item> */}
+          <Menu.Item key="6">video 1</Menu.Item>
+          <Menu.Item key="3">audio </Menu.Item>
+          <Menu.Item key="4">captoins </Menu.Item>
+        </SubMenu>{" "}
+        <SubMenu
+          onTitleClick={() => handleClickMenu("/project")}
+          key="sub8"
+          icon={<SettingOutlined />}
+          title="User scheme code
         "
         ></SubMenu>
       </SubMenu>
@@ -74,19 +98,6 @@ const MenuBar = () => {
         title="Waiting List"
       >
         <SubMenu
-          onTitleClick={() => handleClickMenu("/broadcastwinner")}
-          key="sub11"
-          icon={<SettingOutlined />}
-          title="BroadCast Winner"
-        ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/project")}
-          key="sub8"
-          icon={<SettingOutlined />}
-          title="User scheme code
-        "
-        ></SubMenu>
-        <SubMenu
           onTitleClick={() => handleClickMenu("/activateapplicantlist")}
           key="sub10"
           icon={<SettingOutlined />}
@@ -94,22 +105,11 @@ const MenuBar = () => {
         "
         ></SubMenu>
         <SubMenu
-          onTitleClick={() => handleClickMenu("/smsscreen")}
+          onTitleClick={() => handleClickMenu("/broadcastwinner")}
           key="sub11"
           icon={<SettingOutlined />}
-          title="Sms Screen"
+          title="BroadCast Winner"
         ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/project")}
-          key="sub4"
-          icon={<SettingOutlined />}
-          title="Upload document"
-        >
-          {/* <Menu.Item key="5">photo </Menu.Item> */}
-          <Menu.Item key="6">video 1</Menu.Item>
-          <Menu.Item key="3">audio </Menu.Item>
-          <Menu.Item key="4">captoins </Menu.Item>
-        </SubMenu>{" "}
       </SubMenu>
       {/* <Menu.Item key="5">photo </Menu.Item>
         <Menu.Item key="6">video 1</Menu.Item>

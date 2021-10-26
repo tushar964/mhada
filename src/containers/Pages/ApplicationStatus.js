@@ -34,6 +34,8 @@ const ApplicationStatus = () => {
   const [schemeData, setSchemeData] = useState([]);
   const [selectedCode, setSelectedCode] = useState(null);
   const [selectedScheme, setSelectedScheme] = useState(null);
+  const [lottoryEvent, setLottoryEvent] = useState([]);
+  const [lottoryName, setLottoryName] = useState(null);
 
   const [pagination, setPagination] = useState({
     pageNumber: +1,
@@ -42,33 +44,55 @@ const ApplicationStatus = () => {
   });
 
   useEffect(() => {
-    getSchemeData();
+    getLottoryEvent();
+    getSchemeData(lottoryName);
     // eslint-disable-next-line no-use-before-define
-  }, []);
+  }, [lottoryName]);
 
-  const getSchemeData = () => {
+  // useEffect(() => {
+  //   getLottoryEvent();
+  //   getSchemeData(lottoryName);
+  //   // getSchemeByLottoryName(lottoryName);
+  //   // eslint-disable-next-line no-use-before-define
+  // }, [lottoryName]);
+
+  const getLottoryEvent = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllScheme").then(
+    Axios.get("http://94.237.3.166:8089/postlmhada/getAllLottery").then(
       (result) => {
         console.log("scheme", result);
-
-        const newSchemeData = result.data.map((cvalue) => {
+        const LottoryEvent = result.data.map((cvalue) => {
           return {
-            label: cvalue.schemeName,
-            value: cvalue.schemeName,
-            label: cvalue.schemeCode,
-            value: cvalue.schemeCode,
+            label: cvalue.lotteryName,
+            value: cvalue.lotteryName,
           };
         });
-
-        console.log("newSchemeData", result);
-        setSchemeData(newSchemeData);
-        // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
-        // dispatch(action);
-
-        setIsLoading(false);
+        setLottoryEvent(LottoryEvent);
       }
     );
+  };
+
+  const getSchemeData = (lottoryName) => {
+    setIsLoading(true);
+    Axios.get(
+      `http://94.237.3.166:8089/postlmhada/getSchemeByLotteryId/${lottoryName}`
+    ).then((result) => {
+      console.log("scheme", result);
+
+      const newSchemeData = result.data.map((cvalue) => {
+        return {
+          label: "#" + cvalue.schemeCode + "-" + cvalue.schemeName,
+          value: cvalue.schemeCode,
+        };
+      });
+
+      console.log("newSchemeData", result);
+      setSchemeData(newSchemeData);
+      // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
+      // dispatch(action);
+
+      setIsLoading(false);
+    });
   };
 
   //   useEffect(() => {
@@ -168,17 +192,7 @@ const ApplicationStatus = () => {
   const onError = (error) => {
     message.error(error);
   };
-  // const incrementNumber = () => {
-  //   let i = -1;
-  //   return (id) => {
-  //     if (pagination.pageNumber === 1) {
-  //       return id++;
-  //     }
-  //     return (i = i + 1);
-  //   };
-  // };
 
-  // const fromCurrentIndex = incrementNumber();
   const columns = [
     {
       title: "Sr No",
@@ -223,14 +237,15 @@ const ApplicationStatus = () => {
         );
       },
     },
-    // {
-    //   title: "Scheme Code",
-    //   dataIndex: "mhadaUserName",
-    //   width: 80,
-    //   render: (text, record) => {
-    //     return <Space size="middle">{record?.scheme?.schemeCode}</Space>;
-    //   },
-    // },
+    {
+      title: "Remark",
+      dataIndex: "remark",
+      width: 80,
+
+      // render: (text, record) => {
+      //   return <Space size="middle">{record?.scheme?.schemeCode}</Space>;
+      // },
+    },
 
     {
       title: "status",
@@ -278,6 +293,7 @@ const ApplicationStatus = () => {
     Axios.post("http://94.237.3.166:8089/postlmhada/updateCustomerStatus", {
       mobileNo: form.getFieldsValue().mobileNo,
       status: form.getFieldsValue().status,
+      remark: form.getFieldsValue().remark,
       emailId: form.getFieldsValue().emailId,
       appReference: form.getFieldsValue().appReference,
     }).then((result) => {
@@ -345,14 +361,29 @@ const ApplicationStatus = () => {
       <MenuBar />
       <div className={classes.container1}>
         {/* <div className={classes.table}> */}
-        <Search
-          placeholder="Search by id"
-          allowClear
-          enterButton="Search"
-          onSearch={handleSearch}
-          onClear={onClear}
-          style={{ width: 300, marginBottom: "10px" }}
-        />
+        <Form.Item>
+          <Search
+            placeholder="Search by id"
+            allowClear
+            enterButton="Search"
+            onSearch={handleSearch}
+            onClear={onClear}
+            style={{ width: 300, marginBottom: "10px" }}
+          />
+        </Form.Item>
+        <Form.Item label="Lottory Event">
+          {/* Lottory Event: */}
+          <Select
+            // defaultValue=""
+            style={{ width: "200px" }}
+            options={lottoryEvent}
+            allowClear={true}
+            onSelect={(cvalue, options) => {
+              console.log("cvalue", cvalue, options);
+              setLottoryName(cvalue);
+            }}
+          ></Select>
+        </Form.Item>
         <Form.Item label="schemeCode">
           <Select
             showSearch
@@ -493,7 +524,12 @@ const ApplicationStatus = () => {
               },
             ]}
           >
-            <Input />
+            <Select allowClear>
+              <Option value="POL given">POL given</Option>
+              <Option value="Eligibles">Eligibles</Option>
+              <Option value="status">NO SCRUTINY</Option>
+              <Option value="status">PENDING DOCUMENT</Option>
+            </Select>
           </Form.Item>
           <Form.Item
             label="Remark"

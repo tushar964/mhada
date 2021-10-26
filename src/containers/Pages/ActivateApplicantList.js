@@ -57,18 +57,21 @@ const columns = [
   },
   {
     title: "Scheme Code",
+    width: 150,
     dataIndex: "schemeCode",
     render: (text, record) => {
       return (
         <Space size="middle">
-          {record?.scheme?.schemeName}-{record?.scheme?.schemeCode}
+          {record?.scheme?.schemeCode}
+          {record?.scheme?.schemeName}
         </Space>
       );
     },
   },
   {
     title: "Category",
-    dataIndex: "category_code",
+    width: 50,
+    dataIndex: "categoryCode",
   },
   {
     title: "Priority",

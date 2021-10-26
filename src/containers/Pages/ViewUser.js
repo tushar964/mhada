@@ -70,6 +70,11 @@ const ViewUser = () => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [smShow, setSmShow] = useState(false);
+  const [pagination, setPagination] = useState({
+    pageNumber: +1,
+    pageSize: 10,
+    total: 0,
+  });
 
   useEffect(() => {
     //debugger;
@@ -155,6 +160,9 @@ const ViewUser = () => {
   const onFinish = (values) => {
     console.log("values", values);
     const postdata = {
+      id: form.getFieldsValue().id,
+      userName: values.userName,
+      password: form.getFieldsValue().password,
       mhadaUserName: values.mhadaUserName,
       emailId: form.getFieldsValue().emailId,
       age: form.getFieldsValue().age,
@@ -163,7 +171,6 @@ const ViewUser = () => {
       address: form.getFieldsValue().address,
       designation: form.getFieldsValue().designation,
       role: form.getFieldsValue().role,
-      id: form.getFieldsValue().id,
     };
     if (formtype === "add") {
       console.log("--emailId---");
@@ -208,69 +215,6 @@ const ViewUser = () => {
       console.log("result", text, values, result);
     });
   };
-  // const filterTableData = (data, text) => {
-  //   if (text && text.trim() !== "") {
-  //     const newData = data.filter(
-  //       (item) => item.va && item.mhadaUserName.indexOf(text) > -1
-  //     );
-  //     console.log("result", data);
-
-  //     return newData;
-  //   } else {
-  //     return data;
-  //   }
-
-  //   //setSearchText(text);
-  // };
-
-  const onSearch = (text) => {
-    if (text) {
-      Axios.get(
-        "http://94.237.3.166:8089/postlmhada/getUsersBySearch?inputString={text}"
-      ).then((result) => {
-        setData(result.data.content);
-        setIsLoading(false);
-        console.log("result", result);
-      });
-      // const newData = data.filter((item) => item.key === parseInt(text));
-      // console.log("text:", newData);
-      // setTableData(newData);
-    }
-    setSearchText(text);
-  };
-
-  // const onFinish = (values) => {
-  //   console.log("Received values of form: ", values);
-  // };
-
-  const suffixSelector = (
-    <Form.Item name="suffix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="USD">$</Option>
-        <Option value="CNY">¥</Option>
-      </Select>
-    </Form.Item>
-  );
-  const [autoCompleteResult, setAutoCompleteResult] = useState([]);
-
-  const onWebsiteChange = (value) => {
-    if (!value) {
-      setAutoCompleteResult([]);
-    } else {
-      setAutoCompleteResult(
-        [".com", ".org", ".net"].map((domain) => `${value}${domain}`)
-      );
-    }
-  };
-
-  const websiteOptions = autoCompleteResult.map((website) => ({
-    label: website,
-    value: website,
-  }));
 
   const columns = [
     {
@@ -278,12 +222,17 @@ const ViewUser = () => {
       dataIndex: "id",
       key: "id",
       label: "Sr No",
+      width: 50,
+      render: (value, item, inn) => {
+        return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
+      },
     },
 
     {
       title: "Name ",
       dataIndex: "mhadaUserName",
       label: "Name",
+      width: 150,
     },
     {
       title: "Email Id ",
@@ -320,6 +269,7 @@ const ViewUser = () => {
     {
       title: " Designation",
       dataIndex: "designation",
+      width: 150,
     },
     // {
     //   title: "status",
@@ -341,7 +291,7 @@ const ViewUser = () => {
             <a onClick={() => onEdit(record)}>Edit</a>
 
             <Popconfirm
-              title="Sure to delete?"
+              title="are you Sure to delete?"
               onConfirm={() => handleDelete(record)}
             >
               <a>Delete</a>
@@ -382,6 +332,23 @@ const ViewUser = () => {
           size="middle"
           scroll={{ x: "calc(500px + 50%)", y: 400 }}
           style={{ padding: "15px" }}
+          onChange={(page) => {
+            console.log("pagination", pagination);
+            setPagination({
+              ...pagination,
+              pageNumber: page.current,
+              // pageSize: pagination.pageSize,
+              // total: pagination.total,
+            });
+          }}
+          pagination={{
+            showSizeChanger: false,
+            showQuickJumper: true,
+            pageSize: pagination?.pageSize,
+            defaultCurrent: pagination?.pageNumber,
+            current: pagination?.pageNumber,
+            total: pagination?.total,
+          }}
         />
 
         <Modal
@@ -496,7 +463,7 @@ const ViewUser = () => {
               </Form.Item>
               <Form.Item
                 name="userName"
-                label="userName"
+                label="Username"
                 rules={[
                   {
                     required: true,

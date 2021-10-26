@@ -64,7 +64,7 @@ const columns = [
   {
     title: "Category",
     width: 100,
-    dataIndex: "category_code",
+    dataIndex: "categoryCode",
   },
   {
     title: "Income Group",

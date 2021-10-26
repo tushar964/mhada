@@ -204,11 +204,11 @@ const BroadCastWinner = () => {
 
     {
       title: "status",
-      dataIndex: "status",
+      dataIndex: "Draw Winner",
       label: "status",
       width: 150,
       render: (text, record) => {
-        return <Tag color="red">{text || "Not Available"}</Tag>;
+        return <Tag color="red">{text || "Draw Winner"}</Tag>;
       },
     },
     // {
