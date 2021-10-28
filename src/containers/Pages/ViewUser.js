@@ -461,7 +461,23 @@ const ViewUser = () => {
               >
                 <Input />
               </Form.Item>
-              <Form.Item
+              {formtype === "add" ? (
+                <Form.Item
+                  name="userName"
+                  label="Username"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input your username!",
+                      whitespace: true,
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              ) : null}
+
+              {/* <Form.Item
                 name="userName"
                 label="Username"
                 rules={[
@@ -473,50 +489,51 @@ const ViewUser = () => {
                 ]}
               >
                 <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="password"
-                label="password"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your password!",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input.Password />
-              </Form.Item>
-
-              <Form.Item
-                name="confirm"
-                label="password"
-                dependencies={["password"]}
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: "Please confirm your password!",
-                  },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("password") === value) {
-                        return Promise.resolve();
-                      }
-
-                      return Promise.reject(
-                        new Error(
-                          "The two passwords that you entered do not match!"
-                        )
-                      );
+              </Form.Item> */}
+              {formtype === "add" ? (
+                <Form.Item
+                  name="password"
+                  label="password"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input your password!",
                     },
-                  }),
-                ]}
-              >
-                <Input.Password />
-              </Form.Item>
+                  ]}
+                  hasFeedback
+                >
+                  <Input.Password />
+                </Form.Item>
+              ) : null}
+              {formtype === "add" ? (
+                <Form.Item
+                  name="confirm"
+                  label="password"
+                  dependencies={["password"]}
+                  hasFeedback
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please confirm your password!",
+                    },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("password") === value) {
+                          return Promise.resolve();
+                        }
 
+                        return Promise.reject(
+                          new Error(
+                            "The two passwords that you entered do not match!"
+                          )
+                        );
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password />
+                </Form.Item>
+              ) : null}
               <Form.Item
                 name="role"
                 label="role"

@@ -222,7 +222,7 @@ const ActivateApplicantList = () => {
   const getCustomerDataByScheme = (selectedCode) => {
     setIsLoading(true);
     Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getAllWaitingCustomersBySchemeCode/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
+      `http://94.237.3.166:8089/postlmhada/activateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
     )
       .then((result) => {
         if (result && result.data.content) {
