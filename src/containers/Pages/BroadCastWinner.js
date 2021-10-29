@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import { useHistory } from "react-router-dom";
 import { SettingOutlined } from "@ant-design/icons";
 import {
   Input,
@@ -55,19 +56,25 @@ const rowSelection = {
 };
 const { Search } = Input;
 const BroadCastWinner = () => {
+  const history = useHistory();
   const [selectionType, setSelectionType] = useState("checkbox");
   const [data, setData] = useState([]);
   const [form] = Form.useForm();
   const [isLoading, setIsLoading] = useState(false);
   const [schemeData, setSchemeData] = useState([]);
+  const [selectedCode, setSelectedCode] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [urlScheme, setUrlScheme] = useState("");
   const [pagination, setPagination] = useState({
     pageNumber: +1,
     pageSize: 10,
     total: 0,
   });
   useEffect(() => {
-    getSchemeData();
+    const url = history.location.search.replace("?scheme=", "");
+    getSchemeData(url);
+    setSelectedCode(url);
+    setUrlScheme(url);
     // eslint-disable-next-line no-use-before-define
   }, []);
   const getSchemeData = () => {
@@ -80,13 +87,13 @@ const BroadCastWinner = () => {
         const newSchemeData = result.data.map((cvalue) => {
           return {
             label: cvalue.lottery.lotteryName,
-            value: cvalue.lottery.lotteryName,
+            value: cvalue.schemeCode,
             // label: cvalue.schemeName,
             // value: cvalue.schemeName,
           };
         });
         console.log("newSchemeData", newSchemeData);
-        setSchemeData(newSchemeData);
+        setSelectedCode(newSchemeData);
         // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
         // dispatch(action);
 
@@ -96,30 +103,30 @@ const BroadCastWinner = () => {
   };
   useEffect(
     () => {
-      //console.log("selectedCode", selectedCode);
+      console.log("selectedCode", selectedCode);
 
-      getCustomerData();
+      getCustomerData(selectedCode);
 
       // getCustomerData();
     },
 
     //getCustomerData(selectedScheme);
-    [pagination.pageNumber]
+    [selectedCode]
   );
 
   const getCustomerData = () => {
     //debugger;
     Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getAllCustomers?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
+      `http://94.237.3.166:8089/postlmhada/broadcastWaitingList/${selectedCode}`
     ).then((result) => {
-      if (result && result.data.content) {
+      if (result && result.data) {
         console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data.content);
-        setPagination({
-          pageNumber: result.data.pageable.pageNumber || 1,
-          pageSize: result.data.pageable.pageSize || 10,
-          total: result.data.totalElements || 0,
-        });
+        setData(result.data);
+        // setPagination({
+        //   pageNumber: result.data.pageable.pageNumber || 1,
+        //   pageSize: result.data.pageable.pageSize || 10,
+        //   total: result.data.totalElements || 0,
+        // });
       }
       console.log("result", result);
     });
@@ -159,9 +166,6 @@ const BroadCastWinner = () => {
       render: (value, item, inn) => {
         return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
       },
-      // render: (text, record, id) => {
-      //   return fromCurrentIndex(id);
-      // },
     },
     {
       title: "Applicant Name",
@@ -204,7 +208,7 @@ const BroadCastWinner = () => {
 
     {
       title: "status",
-      dataIndex: "Draw Winner",
+      dataIndex: "status",
       label: "status",
       width: 150,
       render: (text, record) => {
@@ -254,14 +258,14 @@ const BroadCastWinner = () => {
           />
            
         </Input.Group> */}
-        <Search
+        {/* <Search
           placeholder="Search by id"
           allowClear
           enterButton="Search"
           onSearch={handleSearch}
           onClear={onClear}
           style={{ width: 300 }}
-        />
+        /> */}
       </div>
       <div className={classes.table}>
         <Table

@@ -39,44 +39,6 @@ const options = [
   },
 ];
 
-const columns = [
-  {
-    title: "CustomerName",
-    dataIndex: "customerName",
-    render: (text) => <a>{text}</a>,
-  },
-  {
-    title: "Schemecode",
-    dataIndex: "schemeCode",
-    render: (text, record) => {
-      return (
-        <Space size="middle">
-          {record?.scheme?.schemeName}-{record?.scheme?.schemeCode}
-        </Space>
-      );
-    },
-  },
-  {
-    title: "App ref No",
-    dataIndex: "appReference",
-  },
-
-  {
-    title: "Category",
-    width: 100,
-    dataIndex: "categoryCode",
-  },
-  {
-    title: "Income Group",
-    dataIndex: "currentAddress",
-  },
-
-  {
-    title: "Action",
-    dataIndex: "status",
-  },
-];
-
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
     console.log(
@@ -92,6 +54,7 @@ const WaitingList = () => {
   const history = useHistory();
   const [selectionType, setSelectionType] = useState("checkbox");
   const [data, setData] = useState([]);
+  const [customerData, setCustomerData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [schemeData, setSchemeData] = useState([]);
   const [lottoryEvent, setLottoryEvent] = useState([]);
@@ -156,7 +119,7 @@ const WaitingList = () => {
       if (lottoryName) {
         getCustomerDataByScheme(selectedCode);
       } else {
-        getCustomerData();
+        // getCustomerData();
       }
     },
 
@@ -164,44 +127,41 @@ const WaitingList = () => {
     [selectedCode, , pagination.pageNumber]
   );
 
-  const getCustomerData = () => {
-    //debugger;
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getAllWaitingCustomers?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id&mhadaUserName=d`
-    ).then((result) => {
-      if (result && result.data.content) {
-        console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data.content);
-        setPagination({
-          pageNumber: result.data.pageable.pageNumber || 1,
-          pageSize: result.data.pageable.pageSize || 10,
-          total: result.data.totalElements || 0,
-        });
+  // const getCustomerData = () => {
+  //   //debugger;
+  //   Axios.get(
+  //     `http://94.237.3.166:8089/postlmhada/operateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id&mhadaUserName=d`
+  //   ).then((result) => {
+  //     if (result && result.data.content) {
+  //       console.log("lllll", localStorage.getItem("Username"));
+  //       setData(result.data.content);
+  //       setPagination({
+  //         pageNumber: result.data.pageable.pageNumber || 1,
+  //         pageSize: result.data.pageable.pageSize || 10,
+  //         total: result.data.totalElements || 0,
+  //       });
 
-        console.log("result", result);
-      }
-    });
-    console.log("result");
-    //debugger;
-  };
+  //       console.log("result", result);
+  //     }
+  //   });
+  //   console.log("result");
+  //   //debugger;
+  // };
 
   const getCustomerDataByScheme = (selectedCode) => {
     setIsLoading(true);
     Axios.get(
-      `http://94.237.3.166:8089/postlmhada/operateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
+      `http://94.237.3.166:8089/postlmhada/operateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}`
     )
       .then((result) => {
-        if (result && result.data.content) {
-          console.log("reult", result);
-          if (result && result.data.content) {
-            console.log("result123", result);
-            setData(result.data.content);
-            setPagination({
-              pageNumber: result.data.pageable.pageNumber,
-              pageSize: result.data.pageable.pageSize,
-              total: result.data.totalElements,
-            });
-          }
+        console.log("result123", result);
+        if (result && result.data) {
+          setCustomerData(result.data);
+          setPagination({
+            pageNumber: result.data.pageable.pageNumber,
+            pageSize: result.data.pageable.pageSize,
+            total: result.data.totalElements,
+          });
         }
         setIsLoading(false);
       })
@@ -210,7 +170,7 @@ const WaitingList = () => {
         setData([]);
 
         console.log(error?.response?.data?.error);
-        onError(error?.response?.data?.error || "Waiting Schemedata");
+        //onError(error?.response?.data?.error || "Waiting Schemedata");
         setIsLoading(false);
       });
   };
@@ -235,13 +195,65 @@ const WaitingList = () => {
     });
   };
   const onClear = () => {
-    getCustomerData();
+    //getCustomerData();
     //setIsModalVisible(false);
   };
   const handleChange = (cvalue) => {
     console.log(`selected ${cvalue}`);
   };
-  console.log("scheme", lottoryEvent);
+  console.log("scheme", customerData);
+  console.log("history", history);
+  console.log("history", history.location.search);
+
+  const columns = [
+    {
+      title: "Sr No",
+      width: 100,
+      dataIndex: "id",
+
+      // key: "id",
+
+      // label: "Sr No",
+      render: (value, item, inn) => {
+        return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
+      },
+    },
+    {
+      title: "CustomerName",
+      dataIndex: "customerName",
+      render: (text) => <a>{text}</a>,
+    },
+    {
+      title: "Schemecode",
+      dataIndex: "schemeCode",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.scheme?.schemeName}-{record?.scheme?.schemeCode}
+          </Space>
+        );
+      },
+    },
+    {
+      title: "App ref No",
+      dataIndex: "appReference",
+    },
+
+    {
+      title: "Category",
+      width: 100,
+      dataIndex: "categoryCode",
+    },
+    {
+      title: "Income Group",
+      dataIndex: "currentAddress",
+    },
+
+    {
+      title: "Action",
+      dataIndex: "status",
+    },
+  ];
   return (
     <>
       <Header />
@@ -291,7 +303,7 @@ const WaitingList = () => {
             ...rowSelection,
           }}
           columns={columns}
-          dataSource={data}
+          dataSource={customerData}
           scroll={{ x: "calc(500px + 50%)", y: 400 }}
           loading={isLoading}
           onChange={(page) => {
@@ -317,7 +329,9 @@ const WaitingList = () => {
           <Button
             type="primary"
             style={{ marginRight: "20px" }}
-            onClick={() => history.push("/activateapplicantlist")}
+            onClick={() =>
+              history.push(`/activateapplicantlist?scheme=${selectedCode}`)
+            }
           >
             ACTIVATE WAIT LIST
           </Button>

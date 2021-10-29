@@ -70,20 +70,13 @@ const MenuBar = () => {
           onTitleClick={() => handleClickMenu("/project")}
           key="sub4"
           icon={<SettingOutlined />}
-          title="Upload document"
+          title="Reverse Action"
         >
           {/* <Menu.Item key="5">photo </Menu.Item> */}
           <Menu.Item key="6">video 1</Menu.Item>
           <Menu.Item key="3">audio </Menu.Item>
           <Menu.Item key="4">captoins </Menu.Item>
         </SubMenu>{" "}
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/project")}
-          key="sub8"
-          icon={<SettingOutlined />}
-          title="User scheme code
-        "
-        ></SubMenu>
       </SubMenu>
       <SubMenu
         onTitleClick={() => handleClickMenu("/applicationstatus")}

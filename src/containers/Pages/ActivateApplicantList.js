@@ -40,74 +40,6 @@ const options = [
   },
 ];
 
-const columns = [
-  {
-    title: "App ref No",
-    dataIndex: "appReference",
-  },
-  {
-    title: "Applicant Name",
-    dataIndex: "customerName",
-    render: (text) => <a>{text}</a>,
-  },
-
-  {
-    title: "Alloted Tenament",
-    dataIndex: "mobileNo",
-  },
-  {
-    title: "Scheme Code",
-    width: 150,
-    dataIndex: "schemeCode",
-    render: (text, record) => {
-      return (
-        <Space size="middle">
-          {record?.scheme?.schemeCode}
-          {record?.scheme?.schemeName}
-        </Space>
-      );
-    },
-  },
-  {
-    title: "Category",
-    width: 50,
-    dataIndex: "categoryCode",
-  },
-  {
-    title: "Priority",
-    dataIndex: "priority",
-  },
-  {
-    title: "Ineligable App Name",
-    dataIndex: "panNumber",
-  },
-  {
-    title: "Ineligable Ctg Code",
-    dataIndex: "status",
-  },
-  {
-    title: "Ineligable App ref No",
-    dataIndex: "appReference",
-  },
-  {
-    title: "Brodcast",
-    dataIndex: "mobileNo",
-  },
-  {
-    title: "Flat detail",
-    dataIndex: "flat",
-  },
-
-  {
-    title: "Action",
-    dataIndex: "status",
-  },
-  {
-    title: "Remark",
-    dataIndex: "remark",
-  },
-];
-
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
     console.log(
@@ -128,12 +60,14 @@ const ActivateApplicantList = () => {
   const history = useHistory();
   const [selectionType, setSelectionType] = useState("checkbox");
   const [data, setData] = useState([]);
+  const [customerData, setCustomerData] = useState([]);
   const [schemeData, setSchemeData] = useState([]);
   const [selectedCode, setSelectedCode] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [checkStrictly, setCheckStrictly] = useState(false);
   const [lottoryEvent, setLottoryEvent] = useState([]);
   const [lottoryName, setLottoryName] = useState(null);
+  const [urlScheme, setUrlScheme] = useState("");
   const [pagination, setPagination] = useState({
     pageNumber: +1,
     pageSize: 10,
@@ -141,6 +75,9 @@ const ActivateApplicantList = () => {
   });
 
   useEffect(() => {
+    const url = history.location.search.replace("?scheme=", "");
+    setSelectedCode(url);
+    getCustomerDataByScheme(url);
     getLottoryEvent();
     getSchemeData(lottoryName);
     // eslint-disable-next-line no-use-before-define
@@ -192,7 +129,7 @@ const ActivateApplicantList = () => {
       if (selectedCode) {
         getCustomerDataByScheme(selectedCode);
       } else {
-        getCustomerData();
+        //getCustomerData();
       }
     },
 
@@ -200,24 +137,24 @@ const ActivateApplicantList = () => {
     [selectedCode, , pagination.pageNumber]
   );
 
-  const getCustomerData = () => {
-    //debugger;
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getAllWaitingCustomers?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id&mhadaUserName=d`
-    ).then((result) => {
-      console.log("lllll", localStorage.getItem("Username"));
-      setData(result.data.content);
-      setPagination({
-        pageNumber: result.data.pageable.pageNumber || 1,
-        pageSize: result.data.pageable.pageSize || 10,
-        total: result.data.totalElements || 0,
-      });
+  // const getCustomerData = () => {
+  //   //debugger;
+  //   Axios.get(
+  //     `http://94.237.3.166:8089/postlmhada/getAllWaitingCustomers?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id&mhadaUserName=d`
+  //   ).then((result) => {
+  //     console.log("lllll", localStorage.getItem("Username"));
+  //     setData(result.data.content);
+  //     setPagination({
+  //       pageNumber: result.data.pageable.pageNumber || 1,
+  //       pageSize: result.data.pageable.pageSize || 10,
+  //       total: result.data.totalElements || 0,
+  //     });
 
-      console.log("result", result);
-    });
-    console.log("result");
-    //debugger;
-  };
+  //     console.log("result", result);
+  //   });
+  //   console.log("result");
+  //   //debugger;
+  // };
 
   const getCustomerDataByScheme = (selectedCode) => {
     setIsLoading(true);
@@ -225,18 +162,17 @@ const ActivateApplicantList = () => {
       `http://94.237.3.166:8089/postlmhada/activateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
     )
       .then((result) => {
-        if (result && result.data.content) {
-          console.log("reult", result);
-          if (result && result.data.content) {
-            console.log("result123", result);
-            setData(result.data.content);
-            setPagination({
-              pageNumber: result.data.pageable.pageNumber,
-              pageSize: result.data.pageable.pageSize,
-              total: result.data.totalElements,
-            });
-          }
+        console.log("reult", result);
+        if (result && result.data) {
+          console.log("result123", result);
+          setCustomerData(result.data);
+          setPagination({
+            pageNumber: result.data.pageable.pageNumber,
+            pageSize: result.data.pageable.pageSize,
+            total: result.data.totalElements,
+          });
         }
+
         setIsLoading(false);
       })
       .catch(function (error) {
@@ -244,7 +180,7 @@ const ActivateApplicantList = () => {
         setData([]);
 
         console.log(error?.response?.data?.error);
-        onError(error?.response?.data?.error || "Waiting Schemedata");
+        // onError(error?.response?.data?.error || "Waiting Schemedata");
         setIsLoading(false);
       });
   };
@@ -271,9 +207,91 @@ const ActivateApplicantList = () => {
     });
   };
   const onClear = () => {
-    getCustomerData();
+    //getCustomerData();
     //setIsModalVisible(false);
   };
+  const columns = [
+    {
+      title: "Sr No",
+      width: 100,
+      dataIndex: "id",
+
+      // key: "id",
+
+      // label: "Sr No",
+      render: (value, item, inn) => {
+        return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
+      },
+    },
+    {
+      title: "App ref No",
+      dataIndex: "appReference",
+    },
+    {
+      title: "Applicant Name",
+      dataIndex: "customerName",
+      render: (text) => <a>{text}</a>,
+    },
+
+    {
+      title: "Alloted Tenament",
+      dataIndex: "mobileNo",
+    },
+    {
+      title: "Scheme Code",
+      width: 150,
+      dataIndex: "schemeCode",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.scheme?.schemeCode}
+            {record?.scheme?.schemeName}
+          </Space>
+        );
+      },
+    },
+    {
+      title: "Category",
+      width: 50,
+      dataIndex: "categoryCode",
+    },
+    {
+      title: "Priority",
+      dataIndex: "priority",
+    },
+    {
+      title: "Ineligable App Name",
+      dataIndex: "panNumber",
+    },
+    {
+      title: "Ineligable Ctg Code",
+      dataIndex: "status",
+    },
+    {
+      title: "Ineligable App ref No",
+      dataIndex: "appReference",
+    },
+    {
+      title: "Brodcast",
+      dataIndex: "mobileNo",
+    },
+    {
+      title: "Flat detail",
+      dataIndex: "flat.flatno",
+      render: (text, record) => {
+        return <Space size="middle">{record?.flat?.flatno}</Space>;
+      },
+    },
+
+    {
+      title: "Action",
+      dataIndex: "status",
+    },
+    {
+      title: "Remark",
+      dataIndex: "remark",
+    },
+  ];
 
   return (
     <>
@@ -314,14 +332,14 @@ const ActivateApplicantList = () => {
         </Input.Group>
       </div>
       <div className={classes.table}>
-        <Search
+        {/* <Search
           placeholder="Search by id"
           allowClear
           enterButton="Search"
           onSearch={handleSearch}
           onClear={onClear}
           style={{ width: 300, marginBottom: "10px" }}
-        />
+        /> */}
         <Table
           // rowSelection={{
           //   type: selectionType,
@@ -329,7 +347,7 @@ const ActivateApplicantList = () => {
           // }}
           rowSelection={{ ...rowSelection, checkStrictly }}
           columns={columns}
-          dataSource={data}
+          dataSource={customerData}
           rowKey={(row) => row.id}
           bordered
           size="middle"
@@ -357,7 +375,9 @@ const ActivateApplicantList = () => {
           <Button
             type="primary"
             style={{ marginRight: "20px" }}
-            onClick={() => history.push("/broadcastwinner")}
+            onClick={() =>
+              history.push(`/broadcastwinner?scheme=${selectedCode}`)
+            }
           >
             Broadcast Winner
           </Button>
