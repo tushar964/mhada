@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import { useHistory, useLocation } from "react-router-dom";
+import api from "../../services/api";
 import { SettingOutlined } from "@ant-design/icons";
 import {
   Input,
@@ -13,6 +14,7 @@ import {
   Space,
   message,
   Button,
+  Form,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import Header from "../../components/Layout/Header";
@@ -75,25 +77,21 @@ const WaitingList = () => {
 
   const getLottoryEvent = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllLottery").then(
-      (result) => {
-        console.log("scheme", result);
-        const LottoryEvent = result.data.map((cvalue) => {
-          return {
-            label: cvalue.lotteryName,
-            value: cvalue.lotteryName,
-          };
-        });
-        setLottoryEvent(LottoryEvent);
-      }
-    );
+    api.get("/getAllLottery").then((result) => {
+      console.log("scheme", result);
+      const LottoryEvent = result.data.map((cvalue) => {
+        return {
+          label: cvalue.lotteryName,
+          value: cvalue.lotteryName,
+        };
+      });
+      setLottoryEvent(LottoryEvent);
+    });
   };
 
   const getSchemeData = (lottoryName) => {
     setIsLoading(true);
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getSchemeByLotteryId/${lottoryName}`
-    ).then((result) => {
+    api.get(`/getSchemeByLotteryId/${lottoryName}`).then((result) => {
       console.log("scheme", result);
 
       const newSchemeData = result.data.map((cvalue) => {
@@ -150,9 +148,10 @@ const WaitingList = () => {
 
   const getCustomerDataByScheme = (selectedCode) => {
     setIsLoading(true);
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/operateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}`
-    )
+    api
+      .get(
+        `/operateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}`
+      )
       .then((result) => {
         console.log("result123", result);
         if (result && result.data) {
@@ -186,13 +185,13 @@ const WaitingList = () => {
   const handleSearch = (text) => {
     //setSearchText(text.trim());
     console.log(text + "---on search---");
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getWaitingCustomersBySearch?inputString=${text}`
-    ).then((result) => {
-      setData(result.data.content);
-      setIsLoading(false);
-      console.log("result", text, result);
-    });
+    api
+      .get(`/getWaitingCustomersBySearch?inputString=${text}`)
+      .then((result) => {
+        setData(result.data.content);
+        setIsLoading(false);
+        console.log("result", text, result);
+      });
   };
   const onClear = () => {
     //getCustomerData();
@@ -204,6 +203,10 @@ const WaitingList = () => {
   console.log("scheme", customerData);
   console.log("history", history);
   console.log("history", history.location.search);
+
+  const onChange = () => {
+    // getCustomerDataByScheme(selectedCode);
+  };
 
   const columns = [
     {
@@ -226,13 +229,6 @@ const WaitingList = () => {
     {
       title: "Schemecode",
       dataIndex: "schemeCode",
-      render: (text, record) => {
-        return (
-          <Space size="middle">
-            {record?.scheme?.schemeName}-{record?.scheme?.schemeCode}
-          </Space>
-        );
-      },
     },
     {
       title: "App ref No",
@@ -259,7 +255,7 @@ const WaitingList = () => {
       <Header />
       <MenuBar />
       <div className={classes.container}>
-        <Input.Group compact>
+        <Form.Item compact>
           Lottory Event:
           <Select
             // defaultValue=""
@@ -271,9 +267,9 @@ const WaitingList = () => {
               setLottoryName(cvalue);
             }}
           ></Select>
-        </Input.Group>
-        <br />
-        <Input.Group compact>
+        </Form.Item>
+
+        <Form.Item compact>
           Scheme code:
           <Select
             showSearch
@@ -286,7 +282,17 @@ const WaitingList = () => {
               setSelectedCode(cvalue);
             }}
           ></Select>
-        </Input.Group>
+        </Form.Item>
+        <Form.Item>
+          <Button
+            // options={schemeData}
+            type="primary"
+            htmlType="submit"
+            onClick={onChange}
+          >
+            Search
+          </Button>
+        </Form.Item>
       </div>
       <div className={classes.table}>
         <Search
@@ -295,7 +301,8 @@ const WaitingList = () => {
           enterButton="Search"
           onSearch={handleSearch}
           onClear={onClear}
-          style={{ width: 300, marginBottom: "10px" }}
+          //style={{ width: 300, marginBottom: "10px" }}
+          style={{ width: 300, marginLeft: "120px", marginBottom: "10px" }}
         />
         <Table
           rowSelection={{

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import api from "../../services/api";
 import {
   Table,
   Space,
@@ -18,7 +19,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
 import classes from "./styles.module.css";
-import api from "../../../src/services/api";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -95,15 +95,13 @@ const Application = () => {
 
   const getCustomerData = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllUsers").then(
-      (result) => {
-        setIsLoading(false);
+    api.get("/getAllUsers").then((result) => {
+      setIsLoading(false);
 
-        setTableData(result.data.content);
+      setTableData(result.data.content);
 
-        console.log("result", result);
-      }
-    );
+      console.log("result", result);
+    });
   };
 
   // const getCustomerData = (data) =>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+
+import api from "../../services/api";
 import {
   Table,
   Space,
@@ -18,7 +20,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
 import classes from "./ApplicationStatus.module.css";
-import api from "../../../src/services/api";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -38,7 +39,7 @@ const ApplicationStatus = () => {
   const [lottoryName, setLottoryName] = useState(null);
 
   const [pagination, setPagination] = useState({
-    pageNumber: +1,
+    pageNumber: 1,
     pageSize: 10,
     total: 0,
   });
@@ -58,25 +59,21 @@ const ApplicationStatus = () => {
 
   const getLottoryEvent = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllLottery").then(
-      (result) => {
-        console.log("scheme", result);
-        const LottoryEvent = result.data.map((cvalue) => {
-          return {
-            label: cvalue.lotteryName,
-            value: cvalue.lotteryName,
-          };
-        });
-        setLottoryEvent(LottoryEvent);
-      }
-    );
+    api.get("/getAllLottery").then((result) => {
+      console.log("scheme", result);
+      const LottoryEvent = result.data.map((cvalue) => {
+        return {
+          label: cvalue.lotteryName,
+          value: cvalue.lotteryName,
+        };
+      });
+      setLottoryEvent(LottoryEvent);
+    });
   };
 
   const getSchemeData = (lottoryName) => {
     setIsLoading(true);
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getSchemeByLotteryId/${lottoryName}`
-    ).then((result) => {
+    api.get(`/getSchemeByLotteryId/${lottoryName}`).then((result) => {
       console.log("scheme", result);
 
       const newSchemeData = result.data.map((cvalue) => {
@@ -102,62 +99,69 @@ const ApplicationStatus = () => {
 
   useEffect(
     () => {
-      console.log("selectedCode", selectedCode, selectedScheme);
+      console.log("selectedCode", selectedCode);
+      //getCustomerData();
       if (selectedCode) {
         getCustomerDataByScheme(selectedCode);
-      } else if (selectedScheme && selectedScheme.trim() !== "") {
-        getCustomerDataByScheme(selectedScheme);
       } else {
-        getCustomerData();
+        //getCustomerData();
       }
     },
 
     //getCustomerData(selectedScheme);
-    [selectedCode, selectedScheme, pagination.pageNumber]
+    [selectedCode, pagination.pageNumber]
   );
 
   const getCustomerData = () => {
     setIsLoading(true);
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getAllCustomers?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
-    ).then((result) => {
-      if (result && result.data.content) {
-        console.log("result", result);
+    api
+      .get(
+        `/getAllCustomers?pageNo=${pagination?.pageNumber - 1}&pageSize=${
+          pagination?.pageSize
+        }&sortBy=id`
+      )
+      .then((result) => {
+        if (result && result.data.content) {
+          console.log("result", result);
 
-        //   console.log("lllll", localStorage.getItem("Username"));
-        setTableData(result.data.content);
-        setPagination({
-          pageNumber: result.data.pageable.pageNumber || 1,
-          pageSize: result.data.pageable.pageSize || 10,
-          total: result.data.totalElements || 0,
-        });
-      }
-      setIsLoading(false);
-    });
+          //   console.log("lllll", localStorage.getItem("Username"));
+          setTableData(result.data.content);
+          setPagination({
+            pageNumber: result.data.pageable.pageNumber + 1 || 1,
+            pageSize: result.data.pageable.pageSize || 10,
+            total: result.data.totalElements || 0,
+          });
+        }
+        setIsLoading(false);
+      });
   };
+
+  // const handleTableChange = () => {
+  //   getCustomerData().then((result) => {
+  //     pagination.pageNumber = your_value;
+  //     setPagination(pagination);
+  //   });
+  // };
 
   const getCustomerDataByScheme = (selectedCode) => {
     setIsLoading(true);
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getCustomersBySchemeCode/${
-        (selectedCode, selectedScheme)
-      }?pageNo=${pagination?.pageNumber}&pageSize=${
-        pagination?.pageSize
-      }&sortBy=id`
-    )
+    api
+      .get(
+        `/getCustomersBySchemeCode/${selectedCode}?pageNo=${
+          pagination?.pageNumber - 1
+        }&pageSize=${pagination?.pageSize}&sortBy=id`
+      )
       .then((result) => {
+        console.log("reult", result);
         if (result && result.data.content) {
-          console.log("reult", result);
-          if (result && result.data.content) {
-            console.log("result123", result);
-            setTableData(result.data.content);
-            setPagination({
-              pageNumber: result.data.pageable.pageNumber,
-              pageSize: result.data.pageable.pageSize,
-              total: result.data.totalElements,
-            });
-          }
+          setTableData(result.data.content);
+          setPagination({
+            pageNumber: result.data.pageable.pageNumber + 1 || 1,
+            pageSize: result.data.pageable.pageSize || 10,
+            total: result.data.totalElements || 0,
+          });
         }
+
         setIsLoading(false);
       })
       .catch(function (error) {
@@ -195,19 +199,19 @@ const ApplicationStatus = () => {
 
   const columns = [
     {
-      title: "Sr No",
+      title: "S.N.",
       width: 50,
       dataIndex: "id",
 
-      // key: "id",
-
       // label: "Sr No",
-      render: (value, item, inn) => {
-        return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
-      },
-      // render: (text, record, id) => {
-      //   return fromCurrentIndex(id);
+      // render: (value, item, inn) => {
+      //   return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
       // },
+    },
+    {
+      title: "App Refrence",
+      dataIndex: "appReference",
+      label: "Apprefernce No",
     },
     {
       title: "Applicant Name",
@@ -226,6 +230,19 @@ const ApplicationStatus = () => {
       label: "Email",
     },
     {
+      title: "Category",
+      dataIndex: "categoryName ",
+      width: 150,
+      label: "Category",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.categoryCode}-{record?.categoryName}
+          </Space>
+        );
+      },
+    },
+    {
       title: "Scheme Name",
       dataIndex: "mhadaUserName",
       width: 200,
@@ -237,15 +254,6 @@ const ApplicationStatus = () => {
         );
       },
     },
-    {
-      title: "Remark",
-      dataIndex: "remark",
-      width: 80,
-
-      // render: (text, record) => {
-      //   return <Space size="middle">{record?.scheme?.schemeCode}</Space>;
-      // },
-    },
 
     {
       title: "status",
@@ -255,6 +263,15 @@ const ApplicationStatus = () => {
       render: (text, record) => {
         return <Tag color="red">{text || "Not Available"}</Tag>;
       },
+    },
+    {
+      title: "Remark",
+      dataIndex: "remark",
+      width: 80,
+
+      // render: (text, record) => {
+      //   return <Space size="middle">{record?.scheme?.schemeCode}</Space>;
+      // },
     },
     {
       title: "Action",
@@ -274,7 +291,7 @@ const ApplicationStatus = () => {
   };
 
   const onClear = () => {
-    getCustomerData();
+    //getCustomerData();
     setIsModalVisible(false);
   };
 
@@ -298,7 +315,7 @@ const ApplicationStatus = () => {
       appReference: form.getFieldsValue().appReference,
     }).then((result) => {
       console.log("rt", result, "newDataSource");
-      setTableData(newDataSource);
+      //setTableData(newDataSource);
       getCustomerData();
       setIsModalVisible(false);
       setIsLoading(false);
@@ -313,29 +330,29 @@ const ApplicationStatus = () => {
     console.log("Failed:", errorInfo);
   };
 
-  const onSearch = (text) => {
-    console.log("text", text.trim());
-    if (text.trim() !== "") {
-      console.log("ggggggggg");
-      const newData = data.filter(
-        (item) =>
-          item.appReference.indexOf(text) > -1 ||
-          item.customerName.indexOf(text) > -1 ||
-          item.mobileNo.indexOf(text) > 1 ||
-          item.emailId.indexOf(text) > 1 ||
-          item.status === text
-      );
-      //console.log("text:", newData);
-      setTableData(newData);
-      console.log("newData", newData);
-    } else {
-      if (localStorage.getItem("Username") === "admin") {
-        setTableData(data);
-      } else {
-      }
-    }
-    //setSearchText(text);
-  };
+  // const onSearch = (text) => {
+  //   console.log("text", text.trim());
+  //   if (text.trim() !== "") {
+  //     console.log("ggggggggg");
+  //     const newData = data.filter(
+  //       (item) =>
+  //         item.appReference.indexOf(text) > -1 ||
+  //         item.customerName.indexOf(text) > -1 ||
+  //         item.mobileNo.indexOf(text) > 1 ||
+  //         item.emailId.indexOf(text) > 1 ||
+  //         item.status === text
+  //     );
+  //     //console.log("text:", newData);
+  //     setTableData(newData);
+  //     console.log("newData", newData);
+  //   } else {
+  //     if (localStorage.getItem("Username") === "admin") {
+  //       setTableData(data);
+  //     } else {
+  //     }
+  //   }
+  //   //setSearchText(text);
+  // };
 
   const handleSearch = (text) => {
     setSearchText(text.trim());
@@ -350,27 +367,17 @@ const ApplicationStatus = () => {
   };
   console.log("tableData:", tableData);
 
-  console.log("tableData", tableData);
-
-  const handleChange = (cvalue) => {
-    console.log(`selected ${cvalue}`);
+  const handleChange = () => {
+    //getCustomerDataByScheme(selectedCode, pagination.pageNumber);
   };
+
   return (
     <>
       <Header />
       <MenuBar />
       <div className={classes.container1}>
         {/* <div className={classes.table}> */}
-        <Form.Item>
-          <Search
-            placeholder="Search by id"
-            allowClear
-            enterButton="Search"
-            onSearch={handleSearch}
-            onClear={onClear}
-            style={{ width: 300, marginBottom: "10px" }}
-          />
-        </Form.Item>
+
         <Form.Item label="Lottory Event">
           {/* Lottory Event: */}
           <Select
@@ -387,7 +394,6 @@ const ApplicationStatus = () => {
         <Form.Item label="schemeCode">
           <Select
             showSearch
-            onChange={handleChange}
             onClear={onClear}
             allowClear={true}
             style={{
@@ -398,20 +404,33 @@ const ApplicationStatus = () => {
             onSelect={(cvalue, options) => {
               console.log("cvalue", cvalue, options);
               setSelectedCode(cvalue);
-              setSelectedScheme(cvalue);
+              // setSelectedScheme(cvalue);
             }}
-            // filterOption={(inputValue, options) =>
-            //   options.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-            //   -1
-            // }
+          ></Select>
+        </Form.Item>
+        <Form.Item>
+          <Button
+            // options={schemeData}
+            type="primary"
+            htmlType="submit"
+            onClick={handleChange}
           >
-            {/* <Option value={mhadaUserName} key={mhadaUserName}>
-              {mhadaUserName}
-            </Option> */}
-          </Select>
+            Search
+          </Button>
         </Form.Item>
       </div>
-      {/* </div> */}
+      <div className={classes.container2}>
+        <Form.Item>
+          <Search
+            placeholder="Search by id"
+            allowClear
+            enterButton="Search"
+            onSearch={handleSearch}
+            onClear={onClear}
+            style={{ width: 300, marginLeft: "120px" }}
+          />
+        </Form.Item>
+      </div>
 
       <div className={classes.container}>
         <Table
@@ -423,11 +442,12 @@ const ApplicationStatus = () => {
           scroll={{ x: "calc(500px + 50%)", y: 400 }}
           loading={isLoading}
           onChange={(page) => {
-            console.log("pagination", pagination);
+            console.log("page", pagination);
             setPagination({
               ...pagination,
-              pageNumber: page.current,
-              // pageSize: pagination.pageSize,
+              pageNumber: page.current || 1,
+              //pageNumber: page,
+              //pageSize: page.current,
               // total: pagination.total,
             });
           }}
@@ -435,6 +455,8 @@ const ApplicationStatus = () => {
             showSizeChanger: false,
             showQuickJumper: true,
             pageSize: pagination?.pageSize,
+            // current: 0,
+            // defaultCurrent: 0,
             defaultCurrent: pagination?.pageNumber,
             current: pagination?.pageNumber,
             total: pagination?.total,
@@ -527,8 +549,10 @@ const ApplicationStatus = () => {
             <Select allowClear>
               <Option value="POL given">POL given</Option>
               <Option value="Eligibles">Eligibles</Option>
-              <Option value="status">NO SCRUTINY</Option>
-              <Option value="status">PENDING DOCUMENT</Option>
+              <Option value="NO SCRUTINY">NO SCRUTINY</Option>
+              <Option value="PENDING DOCUMENT">PENDING DOCUMENT</Option>
+              <Option value="INELIGIBLE">INELIGIBLE</Option>
+              <Option value="REFUNDED">REFUNDED</Option>
             </Select>
           </Form.Item>
           <Form.Item

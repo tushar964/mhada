@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import api from "../../services/api";
 import { useHistory } from "react-router-dom";
 import { SettingOutlined } from "@ant-design/icons";
 import {
@@ -10,35 +11,18 @@ import {
   Table,
   Space,
   Switch,
-  Cascader,
+  Popconfirm,
   Upload,
   message,
   Button,
+  Form,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import Header from "../../components/Layout/Header";
 import MenuBar from "../../components/Layout/Menu";
-import classes from "./Project.module.css";
+import classes from "./ActivateApplicantList.module.css";
 const { Option } = Select;
 const { Panel } = Collapse;
-const options = [
-  {
-    value: "zhejiang",
-    label: "Zhejiang",
-    children: [
-      {
-        value: "hangzhou",
-        label: "Hangzhou",
-        children: [
-          {
-            value: "xihu",
-            label: "West Lake",
-          },
-        ],
-      },
-    ],
-  },
-];
 
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
@@ -85,25 +69,21 @@ const ActivateApplicantList = () => {
 
   const getLottoryEvent = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllLottery").then(
-      (result) => {
-        console.log("scheme", result);
-        const LottoryEvent = result.data.map((cvalue) => {
-          return {
-            label: cvalue.lotteryName,
-            value: cvalue.lotteryName,
-          };
-        });
-        setLottoryEvent(LottoryEvent);
-      }
-    );
+    api.get("/getAllLottery").then((result) => {
+      console.log("scheme", result);
+      const LottoryEvent = result.data.map((cvalue) => {
+        return {
+          label: cvalue.lotteryName,
+          value: cvalue.lotteryName,
+        };
+      });
+      setLottoryEvent(LottoryEvent);
+    });
   };
 
   const getSchemeData = (lottoryName) => {
     setIsLoading(true);
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getSchemeByLotteryId/${lottoryName}`
-    ).then((result) => {
+    api.get(`/getSchemeByLotteryId/${lottoryName}`).then((result) => {
       console.log("scheme", result);
 
       const newSchemeData = result.data.map((cvalue) => {
@@ -123,19 +103,19 @@ const ActivateApplicantList = () => {
     });
   };
 
-  useEffect(
-    () => {
-      console.log("selectedCode", selectedCode);
-      if (selectedCode) {
-        getCustomerDataByScheme(selectedCode);
-      } else {
-        //getCustomerData();
-      }
-    },
+  // useEffect(
+  //   () => {
+  //     console.log("selectedCode", selectedCode);
+  //     if (selectedCode) {
+  //       getCustomerDataByScheme(selectedCode);
+  //     } else {
+  //       //getCustomerData();
+  //     }
+  //   },
 
-    //getCustomerData(selectedScheme);
-    [selectedCode, , pagination.pageNumber]
-  );
+  //   //getCustomerData(selectedScheme);
+  //   [selectedCode, , pagination.pageNumber]
+  // );
 
   // const getCustomerData = () => {
   //   //debugger;
@@ -158,9 +138,10 @@ const ActivateApplicantList = () => {
 
   const getCustomerDataByScheme = (selectedCode) => {
     setIsLoading(true);
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/activateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
-    )
+    api
+      .get(
+        `/activateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}&sortBy=id`
+      )
       .then((result) => {
         console.log("reult", result);
         if (result && result.data) {
@@ -198,22 +179,26 @@ const ActivateApplicantList = () => {
   const handleSearch = (text) => {
     //setSearchText(text.trim());
     console.log(text + "---on search---");
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getWaitingCustomersBySearch?inputString=${text}`
-    ).then((result) => {
-      setData(result.data.content);
-      setIsLoading(false);
-      console.log("result", text, result);
-    });
+    api
+      .get(`/getWaitingCustomersBySearch?inputString=${text}`)
+      .then((result) => {
+        setData(result.data.content);
+        setIsLoading(false);
+        console.log("result", text, result);
+      });
   };
   const onClear = () => {
     //getCustomerData();
     //setIsModalVisible(false);
   };
+
+  const onChange = () => {
+    getCustomerDataByScheme(selectedCode);
+  };
   const columns = [
     {
-      title: "Sr No",
-      width: 100,
+      title: "S.N.",
+      width: 50,
       dataIndex: "id",
 
       // key: "id",
@@ -224,7 +209,7 @@ const ActivateApplicantList = () => {
       },
     },
     {
-      title: "App ref No",
+      title: "App Reference",
       dataIndex: "appReference",
     },
     {
@@ -232,13 +217,20 @@ const ActivateApplicantList = () => {
       dataIndex: "customerName",
       render: (text) => <a>{text}</a>,
     },
-
     {
-      title: "Alloted Tenament",
-      dataIndex: "mobileNo",
+      title: "Flat detail",
+      dataIndex: "flat.flatno",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.flat?.buildingNo}-{record?.flat?.lottery?.wing}-
+            {record?.flat?.floor}-{record?.flat?.flatno}
+          </Space>
+        );
+      },
     },
     {
-      title: "Scheme Code",
+      title: "Scheme ",
       width: 150,
       dataIndex: "schemeCode",
       render: (text, record) => {
@@ -252,41 +244,40 @@ const ActivateApplicantList = () => {
     },
     {
       title: "Category",
-      width: 50,
+      width: 100,
       dataIndex: "categoryCode",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.categoryCode}-{record?.categoryName}
+          </Space>
+        );
+      },
     },
     {
       title: "Priority",
+      width: 50,
       dataIndex: "priority",
     },
     {
-      title: "Ineligable App Name",
-      dataIndex: "panNumber",
-    },
-    {
-      title: "Ineligable Ctg Code",
+      title: "Status",
       dataIndex: "status",
-    },
-    {
-      title: "Ineligable App ref No",
-      dataIndex: "appReference",
-    },
-    {
-      title: "Brodcast",
-      dataIndex: "mobileNo",
-    },
-    {
-      title: "Flat detail",
-      dataIndex: "flat.flatno",
-      render: (text, record) => {
-        return <Space size="middle">{record?.flat?.flatno}</Space>;
-      },
     },
 
     {
-      title: "Action",
+      title: "Previous Owner",
+      dataIndex: "mobileNo",
+    },
+
+    {
+      title: "Previous App Ref",
+      dataIndex: "panNumber",
+    },
+    {
+      title: "Previous Status",
       dataIndex: "status",
     },
+
     {
       title: "Remark",
       dataIndex: "remark",
@@ -298,7 +289,7 @@ const ActivateApplicantList = () => {
       <Header />
       <MenuBar />
       <div className={classes.container}>
-        <Input.Group compact>
+        <Form.Item compact>
           Post Lottery Name:
           <Select
             defaultValue=""
@@ -310,9 +301,9 @@ const ActivateApplicantList = () => {
               setLottoryName(cvalue);
             }}
           />
-        </Input.Group>
+        </Form.Item>
         <br />
-        <Input.Group compact>
+        <Form.Item compact>
           Scheme code:
           <Select
             style={{ width: "250px" }}
@@ -324,12 +315,17 @@ const ActivateApplicantList = () => {
               setSelectedCode(cvalue);
             }}
           ></Select>
-          {/* <Cascader
-          style={{ width: "70%" }}
-          options={options}
-          placeholder="Select Address"
-        /> */}
-        </Input.Group>
+        </Form.Item>
+        <Form.Item>
+          <Button
+            // options={schemeData}
+            type="primary"
+            htmlType="submit"
+            onClick={onChange}
+          >
+            Search
+          </Button>
+        </Form.Item>
       </div>
       <div className={classes.table}>
         {/* <Search
@@ -372,19 +368,34 @@ const ActivateApplicantList = () => {
           }}
         />
         <div className={classes.container}>
-          <Button
-            type="primary"
-            style={{ marginRight: "20px" }}
-            onClick={() =>
+          <Popconfirm
+            title="are you Sure to Y/N ?"
+            onConfirm={() =>
               history.push(`/broadcastwinner?scheme=${selectedCode}`)
             }
           >
-            Broadcast Winner
-          </Button>
+            <Button
+              type="primary"
+              style={{ marginRight: "20px" }}
+              // onClick={() =>
+              //   history.push(`/broadcastwinner?scheme=${selectedCode}`)
+              // }
+            >
+              Broadcast Winner
+            </Button>
+          </Popconfirm>
+
           <Button>cancel</Button>
-          <Button type="primary" style={{ marginLeft: "20px" }}>
-            Reverse Action
-          </Button>
+          <Popconfirm
+            title="are you Sure to Y/N ?"
+            onConfirm={() =>
+              history.push(`/broadcastwinner?scheme=${selectedCode}`)
+            }
+          >
+            <Button type="primary" style={{ marginLeft: "20px" }}>
+              Reverse Action
+            </Button>
+          </Popconfirm>
         </div>
       </div>
 

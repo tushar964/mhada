@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import api from "../../services/api";
 import { useHistory } from "react-router-dom";
 import { SettingOutlined } from "@ant-design/icons";
 import {
@@ -79,27 +80,25 @@ const BroadCastWinner = () => {
   }, []);
   const getSchemeData = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllScheme").then(
-      (result) => {
-        console.log("scheme", result);
-        // setSchemeData(newSchemeData);
+    api.get("/getAllScheme").then((result) => {
+      console.log("scheme", result);
+      // setSchemeData(newSchemeData);
 
-        const newSchemeData = result.data.map((cvalue) => {
-          return {
-            label: cvalue.lottery.lotteryName,
-            value: cvalue.schemeCode,
-            // label: cvalue.schemeName,
-            // value: cvalue.schemeName,
-          };
-        });
-        console.log("newSchemeData", newSchemeData);
-        setSelectedCode(newSchemeData);
-        // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
-        // dispatch(action);
+      const newSchemeData = result.data.map((cvalue) => {
+        return {
+          label: cvalue.lottery.lotteryName,
+          value: cvalue.schemeCode,
+          // label: cvalue.schemeName,
+          // value: cvalue.schemeName,
+        };
+      });
+      console.log("newSchemeData", newSchemeData);
+      setSelectedCode(newSchemeData);
+      // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
+      // dispatch(action);
 
-        setIsLoading(false);
-      }
-    );
+      setIsLoading(false);
+    });
   };
   useEffect(
     () => {
@@ -116,9 +115,7 @@ const BroadCastWinner = () => {
 
   const getCustomerData = () => {
     //debugger;
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/broadcastWaitingList/${selectedCode}`
-    ).then((result) => {
+    api.get(`/broadcastWaitingList/${selectedCode}`).then((result) => {
       if (result && result.data) {
         console.log("lllll", localStorage.getItem("Username"));
         setData(result.data);
@@ -136,9 +133,7 @@ const BroadCastWinner = () => {
   const handleSearch = (text) => {
     setSearchText(text.trim());
     console.log(text + "---on search---");
-    Axios.get(
-      `http://94.237.3.166:8089/postlmhada/getCustomersBySearch?inputString=${text}`
-    ).then((result) => {
+    api.get(`/getCustomersBySearch?inputString=${text}`).then((result) => {
       setData(result.data.content);
       setIsLoading(false);
       console.log("result", text, result);
@@ -156,8 +151,8 @@ const BroadCastWinner = () => {
   };
   const columns = [
     {
-      title: "Sr No",
-      width: 100,
+      title: "S.N.",
+      width: 50,
       dataIndex: "id",
 
       // key: "id",
@@ -168,10 +163,40 @@ const BroadCastWinner = () => {
       },
     },
     {
+      title: "App Reference",
+      width: 200,
+      dataIndex: "appReference",
+    },
+    {
       title: "Applicant Name",
       width: 200,
       dataIndex: "customerName",
       label: "Applicant Name",
+    },
+    {
+      title: "Scheme Name",
+      dataIndex: "mhadaUserName",
+      width: 200,
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.scheme?.schemeCode}-{record?.scheme?.schemeName}
+          </Space>
+        );
+      },
+    },
+    {
+      title: "Category",
+      dataIndex: "categoryName ",
+      width: 150,
+      label: "Category",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.categoryCode}-{record?.categoryName}
+          </Space>
+        );
+      },
     },
     {
       title: "Mobile",
@@ -186,16 +211,9 @@ const BroadCastWinner = () => {
       label: "Email",
     },
     {
-      title: "Scheme Name",
-      dataIndex: "mhadaUserName",
-      width: 200,
-      render: (text, record) => {
-        return (
-          <Space size="middle">
-            {record?.scheme?.schemeCode}-{record?.scheme?.schemeName}
-          </Space>
-        );
-      },
+      title: "Priority",
+      width: 50,
+      dataIndex: "priority",
     },
     // {
     //   title: "Scheme Code",
@@ -275,6 +293,8 @@ const BroadCastWinner = () => {
           }}
           columns={columns}
           dataSource={data}
+          bordered
+          size="middle"
           scroll={{ x: "calc(500px + 50%)", y: 400 }}
           loading={isLoading}
           onChange={(page) => {

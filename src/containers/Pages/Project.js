@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import api from "../../services/api";
 import { SettingOutlined } from "@ant-design/icons";
 import {
   Input,
@@ -102,44 +103,40 @@ const Project = () => {
 
   const getSchemeData = () => {
     setIsLoading(true);
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllScheme").then(
-      (result) => {
-        console.log("scheme", result);
-        // setSchemeData(newSchemeData);
+    api.get("/getAllScheme").then((result) => {
+      console.log("scheme", result);
+      // setSchemeData(newSchemeData);
 
-        const newSchemeData = result.data.map((cvalue) => {
-          return {
-            label: cvalue.schemeCode,
-            value: cvalue.schemeCode,
-            // label: cvalue.schemeName,
-            // value: cvalue.schemeName,
-          };
-        });
-        console.log("newSchemeData", newSchemeData);
-        setSchemeData(newSchemeData);
-        // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
-        // dispatch(action);
+      const newSchemeData = result.data.map((cvalue) => {
+        return {
+          label: cvalue.schemeCode,
+          value: cvalue.schemeCode,
+          // label: cvalue.schemeName,
+          // value: cvalue.schemeName,
+        };
+      });
+      console.log("newSchemeData", newSchemeData);
+      setSchemeData(newSchemeData);
+      // const action = { type: "ADD_SCHEMEDATA", payload: newSchemeData };
+      // dispatch(action);
 
-        setIsLoading(false);
-      }
-    );
+      setIsLoading(false);
+    });
   };
 
   useEffect(() => {
     //debugger;
-    Axios.get("http://94.237.3.166:8089/postlmhada/getAllCustomers").then(
-      (result) => {
-        console.log("lllll", localStorage.getItem("Username"));
-        setData(result.data.content);
-        // if (localStorage.getItem("Username") === "admin") {
-        //   setTableData(result.data);
-        // } else {
-        //   //setData([result.data[0]]);
-        // }
+    api.get("/getAllCustomers").then((result) => {
+      console.log("lllll", localStorage.getItem("Username"));
+      setData(result.data.content);
+      // if (localStorage.getItem("Username") === "admin") {
+      //   setTableData(result.data);
+      // } else {
+      //   //setData([result.data[0]]);
+      // }
 
-        console.log("result", result);
-      }
-    );
+      console.log("result", result);
+    });
     console.log("result");
     //debugger;
   }, []);

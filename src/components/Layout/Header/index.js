@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import Axios from "axios";
+import api from "../../../services/api";
 import { Modal, Form, Input, Button, Checkbox } from "antd";
 import mhadaImage from "../../../img/mhada.jpg";
 import classes from "./styles.module.css";
@@ -36,11 +37,12 @@ const Header = (props) => {
     //   return item;
     // }
 
-    Axios.post(" http://94.237.3.166:8089/postlmhada/login", {
-      // id: form.getFieldsValue().id,
-      userName: form.getFieldsValue().userName,
-      password: form.getFieldsValue().password,
-    })
+    api
+      .post("/login", {
+        // id: form.getFieldsValue().id,
+        userName: form.getFieldsValue().userName,
+        password: form.getFieldsValue().password,
+      })
       .then(function (response) {
         //handle success
         console.log(response);

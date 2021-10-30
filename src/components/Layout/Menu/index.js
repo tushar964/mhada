@@ -30,7 +30,7 @@ const MenuBar = () => {
         title="About MHADA"
       ></SubMenu>
       <SubMenu
-        onTitleClick={() => handleClickMenu("/broadcastwinner")}
+        // onTitleClick={() => handleClickMenu("/broadcastwinner")}
         key="sub6"
         icon={<SettingOutlined />}
         title="Master"
@@ -85,11 +85,18 @@ const MenuBar = () => {
         title="ApplicationStatus"
       ></SubMenu>
       <SubMenu
-        onTitleClick={() => handleClickMenu("/waitinglist")}
-        key="sub11"
+        //onTitleClick={() => handleClickMenu("/")}
+        key="sub20"
         icon={<SettingOutlined />}
         title="Waiting List"
       >
+        <SubMenu
+          onTitleClick={() => handleClickMenu("/waitinglist")}
+          key="sub19"
+          icon={<SettingOutlined />}
+          title=" Operate Waiting List"
+        ></SubMenu>
+
         <SubMenu
           onTitleClick={() => handleClickMenu("/activateapplicantlist")}
           key="sub10"
