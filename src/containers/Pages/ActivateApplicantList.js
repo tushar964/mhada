@@ -203,10 +203,10 @@ const ActivateApplicantList = () => {
 
       // key: "id",
 
-      // label: "Sr No",
-      render: (value, item, inn) => {
-        return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
-      },
+      // // label: "Sr No",
+      // render: (value, item, inn) => {
+      //   return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
+      // },
     },
     {
       title: "App Reference",
@@ -266,16 +266,25 @@ const ActivateApplicantList = () => {
 
     {
       title: "Previous Owner",
-      dataIndex: "mobileNo",
+      dataIndex: "customerName",
+      render: (text, record) => {
+        return <Space size="middle">{record?.customer?.customerName}</Space>;
+      },
     },
 
     {
       title: "Previous App Ref",
-      dataIndex: "panNumber",
+      dataIndex: "appReference",
+      render: (text, record) => {
+        return <Space size="middle">{record?.customer?.appReference}</Space>;
+      },
     },
     {
       title: "Previous Status",
       dataIndex: "status",
+      render: (text, record) => {
+        return <Space size="middle">{record?.customer?.status}</Space>;
+      },
     },
 
     {
@@ -290,7 +299,7 @@ const ActivateApplicantList = () => {
       <MenuBar />
       <div className={classes.container}>
         <Form.Item compact>
-          Post Lottery Name:
+          Lottery Event:
           <Select
             defaultValue=""
             style={{ width: "200px" }}
@@ -304,9 +313,9 @@ const ActivateApplicantList = () => {
         </Form.Item>
         <br />
         <Form.Item compact>
-          Scheme code:
+          Scheme :
           <Select
-            style={{ width: "250px" }}
+            style={{ width: "250px", marginRight: "50px" }}
             defaultValue=""
             allowClear={true}
             options={schemeData}
@@ -322,6 +331,7 @@ const ActivateApplicantList = () => {
             type="primary"
             htmlType="submit"
             onClick={onChange}
+            style={{ marginRight: "50px" }}
           >
             Search
           </Button>
@@ -388,9 +398,7 @@ const ActivateApplicantList = () => {
           <Button>cancel</Button>
           <Popconfirm
             title="are you Sure to Y/N ?"
-            onConfirm={() =>
-              history.push(`/broadcastwinner?scheme=${selectedCode}`)
-            }
+            onConfirm={() => history.push("/waitinglist")}
           >
             <Button type="primary" style={{ marginLeft: "20px" }}>
               Reverse Action

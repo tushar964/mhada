@@ -66,17 +66,6 @@ const MenuBar = () => {
           icon={<SettingOutlined />}
           title="Sms Screen"
         ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/project")}
-          key="sub4"
-          icon={<SettingOutlined />}
-          title="Reverse Action"
-        >
-          {/* <Menu.Item key="5">photo </Menu.Item> */}
-          <Menu.Item key="6">video 1</Menu.Item>
-          <Menu.Item key="3">audio </Menu.Item>
-          <Menu.Item key="4">captoins </Menu.Item>
-        </SubMenu>{" "}
       </SubMenu>
       <SubMenu
         onTitleClick={() => handleClickMenu("/applicationstatus")}
@@ -91,12 +80,17 @@ const MenuBar = () => {
         title="Waiting List"
       >
         <SubMenu
+          onTitleClick={() => handleClickMenu("/project")}
+          key="sub4"
+          icon={<SettingOutlined />}
+          title="Waiting List "
+        ></SubMenu>{" "}
+        <SubMenu
           onTitleClick={() => handleClickMenu("/waitinglist")}
           key="sub19"
           icon={<SettingOutlined />}
           title=" Operate Waiting List"
         ></SubMenu>
-
         <SubMenu
           onTitleClick={() => handleClickMenu("/activateapplicantlist")}
           key="sub10"

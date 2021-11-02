@@ -158,13 +158,13 @@ const BroadCastWinner = () => {
       // key: "id",
 
       // label: "Sr No",
-      render: (value, item, inn) => {
-        return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
-      },
+      // render: (value, item, inn) => {
+      //   return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
+      // },
     },
     {
       title: "App Reference",
-      width: 200,
+      width: 150,
       dataIndex: "appReference",
     },
     {
@@ -225,7 +225,7 @@ const BroadCastWinner = () => {
     // },
 
     {
-      title: "status",
+      title: "Status",
       dataIndex: "status",
       label: "status",
       width: 150,

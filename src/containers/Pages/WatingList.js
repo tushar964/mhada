@@ -22,24 +22,6 @@ import MenuBar from "../../components/Layout/Menu";
 import classes from "./Project.module.css";
 const { Option } = Select;
 const { Panel } = Collapse;
-const options = [
-  {
-    value: "zhejiang",
-    label: "Zhejiang",
-    children: [
-      {
-        value: "hangzhou",
-        label: "Hangzhou",
-        children: [
-          {
-            value: "xihu",
-            label: "West Lake",
-          },
-        ],
-      },
-    ],
-  },
-];
 
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
@@ -63,15 +45,17 @@ const WaitingList = () => {
   const [selectedCode, setSelectedCode] = useState(null);
   const [lottoryName, setLottoryName] = useState(null);
   const [pagination, setPagination] = useState({
-    pageNumber: +1,
+    pageNumber: 1,
     pageSize: 10,
     total: 0,
   });
 
   useEffect(() => {
+    const url = history.location.search.replace("?scheme=", "");
+    setSelectedCode(url);
+    getCustomerDataByScheme(url);
     getLottoryEvent();
     getSchemeData(lottoryName);
-    // getSchemeByLottoryName(lottoryName);
     // eslint-disable-next-line no-use-before-define
   }, [lottoryName]);
 
@@ -122,7 +106,7 @@ const WaitingList = () => {
     },
 
     //getCustomerData(selectedScheme);
-    [selectedCode, , pagination.pageNumber]
+    [pagination.pageNumber]
   );
 
   // const getCustomerData = () => {
@@ -150,16 +134,18 @@ const WaitingList = () => {
     setIsLoading(true);
     api
       .get(
-        `/operateWaitingList/${selectedCode}?pageNo=${pagination?.pageNumber}&pageSize=${pagination?.pageSize}`
+        `/operateWaitingList/${selectedCode}?pageNo=${
+          pagination?.pageNumber - 1
+        }&pageSize=${pagination?.pageSize}`
       )
       .then((result) => {
         console.log("result123", result);
         if (result && result.data) {
           setCustomerData(result.data);
           setPagination({
-            pageNumber: result.data.pageable.pageNumber,
-            pageSize: result.data.pageable.pageSize,
-            total: result.data.totalElements,
+            pageNumber: result.data.pageable.pageNumbe + 1 || 1,
+            pageSize: result.data.pageable.pageSize || 10,
+            total: result.data.totalElements || 0,
           });
         }
         setIsLoading(false);
@@ -205,48 +191,68 @@ const WaitingList = () => {
   console.log("history", history.location.search);
 
   const onChange = () => {
-    // getCustomerDataByScheme(selectedCode);
+    getCustomerDataByScheme(selectedCode);
   };
 
   const columns = [
     {
-      title: "Sr No",
-      width: 100,
+      title: "S.N.",
+      width: 50,
       dataIndex: "id",
 
       // key: "id",
 
       // label: "Sr No",
-      render: (value, item, inn) => {
-        return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
-      },
+      // render: (value, item, inn) => {
+      //   return (pagination.pageNumber - 1) * 10 + (inn + 1); //(pagination.pageNumber - 1) * 10 + inn + 1;
+      // },
     },
     {
       title: "CustomerName",
+      width: 150,
       dataIndex: "customerName",
       render: (text) => <a>{text}</a>,
     },
     {
       title: "Schemecode",
+      width: 200,
       dataIndex: "schemeCode",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.scheme?.schemeCode}
+            {record?.scheme?.schemeName}
+          </Space>
+        );
+      },
     },
     {
-      title: "App ref No",
+      title: "App Refrence",
+      width: 100,
       dataIndex: "appReference",
     },
 
     {
       title: "Category",
-      width: 100,
+      width: 150,
       dataIndex: "categoryCode",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.categoryCode}-{record?.categoryName}
+          </Space>
+        );
+      },
     },
     {
-      title: "Income Group",
-      dataIndex: "currentAddress",
+      title: "In.Group",
+      width: 100,
+      // dataIndex: "currentAddress",
     },
 
     {
       title: "Action",
+      width: 150,
       dataIndex: "status",
     },
   ];
@@ -270,7 +276,7 @@ const WaitingList = () => {
         </Form.Item>
 
         <Form.Item compact>
-          Scheme code:
+          Scheme :
           <Select
             showSearch
             style={{ width: "250px" }}
@@ -289,6 +295,7 @@ const WaitingList = () => {
             type="primary"
             htmlType="submit"
             onClick={onChange}
+            style={{ marginRight: "50px" }}
           >
             Search
           </Button>
