@@ -103,19 +103,19 @@ const ActivateApplicantList = () => {
     });
   };
 
-  // useEffect(
-  //   () => {
-  //     console.log("selectedCode", selectedCode);
-  //     if (selectedCode) {
-  //       getCustomerDataByScheme(selectedCode);
-  //     } else {
-  //       //getCustomerData();
-  //     }
-  //   },
+  useEffect(
+    () => {
+      console.log("selectedCode", selectedCode);
+      if (selectedCode) {
+        getCustomerDataByScheme(selectedCode);
+      } else {
+        //getCustomerData();
+      }
+    },
 
-  //   //getCustomerData(selectedScheme);
-  //   [selectedCode, , pagination.pageNumber]
-  // );
+    //getCustomerData(selectedScheme);
+    [pagination.pageNumber]
+  );
 
   // const getCustomerData = () => {
   //   //debugger;
@@ -176,16 +176,27 @@ const ActivateApplicantList = () => {
     }}
   />;
 
-  const handleSearch = (text) => {
+  // const handleSearch = (text) => {
+  //   //setSearchText(text.trim());
+  //   console.log(text + "---on search---");
+  //   api
+  //     .get(`/getWaitingCustomersBySearch?inputString=${text}`)
+  //     .then((result) => {
+  //       setData(result.data.content);
+  //       setIsLoading(false);
+  //       console.log("result", text, result);
+  //     });
+  // };
+
+  const ReverseData = (selectedCode) => {
     //setSearchText(text.trim());
-    console.log(text + "---on search---");
-    api
-      .get(`/getWaitingCustomersBySearch?inputString=${text}`)
-      .then((result) => {
-        setData(result.data.content);
-        setIsLoading(false);
-        console.log("result", text, result);
-      });
+    console.log(selectedCode + "---on search---");
+    api.get(`/broadcastWaitingList/${selectedCode}`).then((result) => {
+      console.log("result", result);
+      setData(result.data.content);
+      setIsLoading(false);
+      console.log("result", result);
+    });
   };
   const onClear = () => {
     //getCustomerData();
@@ -223,7 +234,7 @@ const ActivateApplicantList = () => {
       render: (text, record) => {
         return (
           <Space size="middle">
-            {record?.flat?.buildingNo}-{record?.flat?.lottery?.wing}-
+            {record?.flat?.buildingNo}-{record?.lottery?.wing}-
             {record?.flat?.floor}-{record?.flat?.flatno}
           </Space>
         );
@@ -398,9 +409,15 @@ const ActivateApplicantList = () => {
           <Button>cancel</Button>
           <Popconfirm
             title="are you Sure to Y/N ?"
-            onConfirm={() => history.push("/waitinglist")}
+            onConfirm={() =>
+              history.push(`/waitinglist?scheme=${selectedCode}`)
+            }
           >
-            <Button type="primary" style={{ marginLeft: "20px" }}>
+            <Button
+              type="primary"
+              onClick={ReverseData}
+              style={{ marginLeft: "20px" }}
+            >
               Reverse Action
             </Button>
           </Popconfirm>

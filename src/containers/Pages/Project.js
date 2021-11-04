@@ -295,17 +295,16 @@ const Project = () => {
         </Form.Item>
       </div>
       <div className={classes.table}>
-        <div className={classes.container1}>
-          <Search
-            placeholder="Search by id"
-            allowClear
-            enterButton="Search"
-            onSearch={handleSearch}
-            onClear={onClear}
-            //style={{ width: 300, marginBottom: "10px" }}
-            style={{ width: 300, marginLeft: "120px", marginBottom: "10px" }}
-          />
-        </div>
+        <Search
+          placeholder="Search by id"
+          allowClear
+          enterButton="Search"
+          onSearch={handleSearch}
+          onClear={onClear}
+          //style={{ width: 300, marginBottom: "10px" }}
+          style={{ width: 300, marginLeft: "120px", marginBottom: "10px" }}
+        />
+
         <Table
           rowSelection={{
             type: selectionType,

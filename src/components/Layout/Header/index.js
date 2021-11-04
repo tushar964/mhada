@@ -2,22 +2,26 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import Axios from "axios";
 import api from "../../../services/api";
+//import { useAuth } from "../../../containers/Pages/Auth";
 import { Modal, Form, Input, Button, Checkbox } from "antd";
 import mhadaImage from "../../../img/mhada.jpg";
 import classes from "./styles.module.css";
 
 const Header = (props) => {
-  const [name, setName] = useState("");
-  const [pwd, setPwd] = useState("");
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoggedIn, setLoggedIn] = useState(false);
   const [form] = Form.useForm();
-  const handle = () => {
-    localStorage.setItem("Username", "admin");
-    localStorage.setItem("Password", "admin");
-  };
+  //const { setAuthTokens } = useAuth();
 
   const history = useHistory();
   const [error, setError] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // const handle = () => {
+  //   localStorage.setItem("Username", JSON.stringify(response.data));
+  //   localStorage.setItem("Password", JSON.stringify(response.data));
+  // };
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -37,6 +41,9 @@ const Header = (props) => {
     //   return item;
     // }
 
+    // localStorage.setItem("person", JSON.stringify(person)); //stringify object and store
+    // var retrievedPerson = JSON.parse(localStorage.getItem("person")); //retrieve the object
+
     api
       .post("/login", {
         // id: form.getFieldsValue().id,
@@ -44,11 +51,15 @@ const Header = (props) => {
         password: form.getFieldsValue().password,
       })
       .then(function (response) {
-        //handle success
-        console.log(response);
+        localStorage.setItem("userName", JSON.stringify(response.data));
+        localStorage.setItem("password", JSON.stringify(response.data));
+
+        console.log("response", response.data);
         if (response.status === 200) {
-          //localStorage.setItem("Username", "admin");
-          window.location = "/dashboard";
+          setLoggedIn(true);
+          //localStorage.setItem("response.data", JSON.stringify(response.data));
+          const loginData = JSON.parse(localStorage.getItem("response.data")); //retrieve the object
+          // window.location = "/dashboard";
           props.history.push("/dashboard");
           setError(false);
         } else {

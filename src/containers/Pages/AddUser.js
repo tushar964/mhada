@@ -283,7 +283,7 @@ import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import { SettingOutlined } from "@ant-design/icons";
 import {
-  Input,
+  Form,
   Collapse,
   Row,
   Select,
@@ -406,9 +406,9 @@ const AddUser = () => {
       <Header />
       <MenuBar />
       <div className={classes.container}>
-        <Input.Group compact>
+        <Form.Item compact>
           Lottory Event:
-          <Select defaultValue="" style={{ width: "20%" }}>
+          <Select defaultValue="" style={{ width: "200px" }}>
             <Option value="Sign Up">Sign Up</Option>
             <Option value="Sign In">Sign In</Option>
           </Select>
@@ -417,11 +417,11 @@ const AddUser = () => {
           placeholder="Email"
           options={[{ value: "text 1" }, { value: "text 2" }]}
         /> */}
-        </Input.Group>
+        </Form.Item>
         <br />
-        <Input.Group compact>
-          Scheme code:
-          <Select style={{ width: "20%" }} defaultValue="">
+        <Form.Item compact>
+          Scheme :
+          <Select style={{ width: "200px" }} defaultValue="">
             <Option value="Home">Home</Option>
             <Option value="Company">Company</Option>
           </Select>
@@ -430,7 +430,7 @@ const AddUser = () => {
           options={options}
           placeholder="Select Address"
         /> */}
-        </Input.Group>
+        </Form.Item>
       </div>
       <div className={classes.table}>
         <Table

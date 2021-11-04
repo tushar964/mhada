@@ -13,7 +13,7 @@ import {
   Tag,
   Form,
   Upload,
-  message,
+  Popconfirm,
   Button,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
@@ -320,13 +320,17 @@ const BroadCastWinner = () => {
           <Button type="primary" style={{ marginRight: "20px" }}>
             Genrate Instimate
           </Button>
-          <Button>cancel</Button>
+
+          <Popconfirm
+            title="are you Sure to Y/N ?"
+            onConfirm={() => history.push("/activateapplicantlist")}
+          >
+            <Button type="primary" style={{ marginLeft: "20px" }}>
+              Cancel
+            </Button>
+          </Popconfirm>
         </div>
       </div>
-
-      {/* <Upload {...props}>
-          <Button icon={<UploadOutlined />}>Click to Upload</Button>
-        </Upload> */}
     </>
   );
 };

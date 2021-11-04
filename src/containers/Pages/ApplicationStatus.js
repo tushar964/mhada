@@ -109,7 +109,7 @@ const ApplicationStatus = () => {
     },
 
     //getCustomerData(selectedScheme);
-    [selectedCode, pagination.pageNumber]
+    [pagination.pageNumber]
   );
 
   const getCustomerData = () => {
@@ -212,7 +212,13 @@ const ApplicationStatus = () => {
       title: "App Refrence",
       dataIndex: "appReference",
       label: "Apprefernce No",
+      render: (text, record) => (
+        <Space size="middle">
+          <a onClick={() => onHistory(record)}>{record?.appReference}</a>
+        </Space>
+      ),
     },
+    //
     {
       title: "Applicant Name",
       dataIndex: "customerName",
@@ -295,6 +301,40 @@ const ApplicationStatus = () => {
     setIsModalVisible(false);
   };
 
+  const onHistory = (values) => {
+    console.log("Success:", values);
+    setIsLoading(true);
+    const newDataSource = data.map((item) => {
+      if (item.key === form.getFieldsValue().key) {
+        return form.getFieldsValue();
+      } else {
+        return item;
+      }
+    });
+
+    // update status
+    api
+      .post("/getCustomersHistroy", {
+        mobileNo: form.getFieldsValue().mobileNo,
+        status: form.getFieldsValue().status,
+        remark: form.getFieldsValue().remark,
+        emailId: form.getFieldsValue().emailId,
+        appReference: form.getFieldsValue().appReference,
+      })
+      .then((result) => {
+        console.log("rt", result, "newDataSource");
+        //setTableData(newDataSource);
+        getCustomerDataByScheme(selectedCode);
+        //getCustomerData();
+        setIsModalVisible(false);
+        setIsLoading(false);
+      });
+
+    //setTableData(newDataSource);
+    setIsModalVisible(false);
+    //console.log("rt", newDataSource, "newDataSource");
+  };
+
   const onFinish = (values) => {
     console.log("Success:", values);
     setIsLoading(true);
@@ -307,19 +347,22 @@ const ApplicationStatus = () => {
     });
 
     // update status
-    Axios.post("http://94.237.3.166:8089/postlmhada/updateCustomerStatus", {
-      mobileNo: form.getFieldsValue().mobileNo,
-      status: form.getFieldsValue().status,
-      remark: form.getFieldsValue().remark,
-      emailId: form.getFieldsValue().emailId,
-      appReference: form.getFieldsValue().appReference,
-    }).then((result) => {
-      console.log("rt", result, "newDataSource");
-      //setTableData(newDataSource);
-      getCustomerData();
-      setIsModalVisible(false);
-      setIsLoading(false);
-    });
+    api
+      .post("/updateCustomerStatus", {
+        mobileNo: form.getFieldsValue().mobileNo,
+        status: form.getFieldsValue().status,
+        remark: form.getFieldsValue().remark,
+        emailId: form.getFieldsValue().emailId,
+        appReference: form.getFieldsValue().appReference,
+      })
+      .then((result) => {
+        console.log("rt", result, "newDataSource");
+        //setTableData(newDataSource);
+        getCustomerDataByScheme(selectedCode);
+        //getCustomerData();
+        setIsModalVisible(false);
+        setIsLoading(false);
+      });
 
     //setTableData(newDataSource);
     setIsModalVisible(false);
@@ -368,7 +411,7 @@ const ApplicationStatus = () => {
   console.log("tableData:", tableData);
 
   const handleChange = () => {
-    //getCustomerDataByScheme(selectedCode, pagination.pageNumber);
+    getCustomerDataByScheme(selectedCode);
   };
 
   return (
@@ -391,7 +434,7 @@ const ApplicationStatus = () => {
             }}
           ></Select>
         </Form.Item>
-        <Form.Item label="schemeCode">
+        <Form.Item label="Scheme">
           <Select
             showSearch
             onClear={onClear}
@@ -419,7 +462,7 @@ const ApplicationStatus = () => {
           </Button>
         </Form.Item>
       </div>
-      <div className={classes.container2}>
+      {/* <div className={classes.container2}>
         <Form.Item>
           <Search
             placeholder="Search by id"
@@ -430,9 +473,19 @@ const ApplicationStatus = () => {
             style={{ width: 300, marginLeft: "120px" }}
           />
         </Form.Item>
-      </div>
+      </div> */}
 
       <div className={classes.container}>
+        <Form.Item>
+          <Search
+            placeholder="Search by id"
+            allowClear
+            enterButton="Search"
+            onSearch={handleSearch}
+            onClear={onClear}
+            style={{ width: 300, marginLeft: "140px", marginBottom: "10px" }}
+          />
+        </Form.Item>
         <Table
           dataSource={tableData}
           columns={columns}
@@ -574,6 +627,16 @@ const ApplicationStatus = () => {
           </Form.Item>
         </Form>
       </Modal>
+      {/* <Modal
+        title="Basic Modal"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+      </Modal> */}
     </>
   );
 };
