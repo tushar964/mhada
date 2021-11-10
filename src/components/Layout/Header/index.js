@@ -51,14 +51,14 @@ const Header = (props) => {
         password: form.getFieldsValue().password,
       })
       .then(function (response) {
-        localStorage.setItem("userName", JSON.stringify(response.data));
-        localStorage.setItem("password", JSON.stringify(response.data));
+        localStorage.setItem("userData", JSON.stringify(response.data));
+        // localStorage.setItem("password", JSON.stringify(response.data));
 
         console.log("response", response.data);
         if (response.status === 200) {
           setLoggedIn(true);
           //localStorage.setItem("response.data", JSON.stringify(response.data));
-          const loginData = JSON.parse(localStorage.getItem("response.data")); //retrieve the object
+          //const userData = JSON.parse(localStorage.getItem("response.data")); //retrieve the object
           // window.location = "/dashboard";
           props.history.push("/dashboard");
           setError(false);

@@ -20,15 +20,18 @@ const MenuBar = () => {
   const handleClickMenu = (path) => {
     history.push(path);
   };
-
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userRole = userData?.role;
   return (
     <Menu onClick={handleClick} mode="horizontal">
-      <SubMenu
-        onTitleClick={() => handleClickMenu("/dashboard")}
-        key="sub1"
-        icon={<AppstoreOutlined />}
-        title="About MHADA"
-      ></SubMenu>
+      {userRole === "admin" || userRole === "acount" ? (
+        <SubMenu
+          onTitleClick={() => handleClickMenu("/dashboard")}
+          key="sub1"
+          icon={<AppstoreOutlined />}
+          title="About MHADA"
+        ></SubMenu>
+      ) : null}
       <SubMenu
         // onTitleClick={() => handleClickMenu("/broadcastwinner")}
         key="sub6"

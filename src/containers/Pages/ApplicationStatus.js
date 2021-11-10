@@ -12,8 +12,9 @@ import {
   Input,
   Select,
   Upload,
-  Menu,
+  Drawer,
   message,
+  Result,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
@@ -28,7 +29,9 @@ const ApplicationStatus = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [tableData, setTableData] = useState([]);
+  const [previousData, setPreviousData] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
   const [isLoading, setIsLoading] = useState(false);
   const [schemeType, setSchemeType] = useState("");
@@ -36,7 +39,9 @@ const ApplicationStatus = () => {
   const [selectedCode, setSelectedCode] = useState(null);
   const [selectedScheme, setSelectedScheme] = useState(null);
   const [lottoryEvent, setLottoryEvent] = useState([]);
+  const [history, setHistory] = useState({});
   const [lottoryName, setLottoryName] = useState(null);
+  const [recordForHistory, setRecordForHistory] = useState(null);
 
   const [pagination, setPagination] = useState({
     pageNumber: 1,
@@ -50,13 +55,57 @@ const ApplicationStatus = () => {
     // eslint-disable-next-line no-use-before-define
   }, [lottoryName]);
 
-  // useEffect(() => {
-  //   getLottoryEvent();
-  //   getSchemeData(lottoryName);
-  //   // getSchemeByLottoryName(lottoryName);
-  //   // eslint-disable-next-line no-use-before-define
-  // }, [lottoryName]);
+  useEffect(() => {
+    if (recordForHistory) {
+      onHistory();
+    }
 
+    // eslint-disable-next-line no-use-before-define
+  }, [recordForHistory]);
+
+  const onHistory = () => {
+    console.log("recordForHistory:", recordForHistory);
+    setIsLoading(true);
+
+    api
+      .post("/getCustomersHistroy", {
+        // appReference: form.getFieldsValue().appReference,
+        // mobileNo: form.getFieldsValue().mobileNo,
+        // appReference: form.getFieldsValue().appReference,
+        mobileNo: recordForHistory?.mobileNo, // "9890638450",
+        appReference: recordForHistory?.appReference, //"3210065486",
+      })
+      .then((result) => {
+        console.log("rt", result);
+        setPreviousData(result.data);
+        setHistory(result.data);
+        const historyData = result.data.map((cvalue) => {
+          return {
+            label:
+              "#" +
+              cvalue.customer.appReference +
+              "-" +
+              cvalue.customer.customerName,
+            value: cvalue.customer.appReference,
+          };
+        });
+        console.log("historyData", historyData);
+        setHistory(historyData);
+        // const history = result.data.map((cvalue) => {
+        //   return {
+        //     label: cvalue.appReference,
+        //     label: cvalue.customerName,
+        //     value: cvalue.lotteryName,
+        //   };
+        // });
+        // setIsModalVisible(false);
+        setIsLoading(false);
+      });
+
+    //setTableData(newDataSource);
+    setIsModalVisible(false);
+    //console.log("rt", newDataSource, "newDataSource");
+  };
   const getLottoryEvent = () => {
     setIsLoading(true);
     api.get("/getAllLottery").then((result) => {
@@ -91,11 +140,6 @@ const ApplicationStatus = () => {
       setIsLoading(false);
     });
   };
-
-  //   useEffect(() => {
-  //       if(selectedCode)
-  //     getCustomerData();
-  //   }, [pagination.pageNumber]);
 
   useEffect(
     () => {
@@ -135,13 +179,6 @@ const ApplicationStatus = () => {
         setIsLoading(false);
       });
   };
-
-  // const handleTableChange = () => {
-  //   getCustomerData().then((result) => {
-  //     pagination.pageNumber = your_value;
-  //     setPagination(pagination);
-  //   });
-  // };
 
   const getCustomerDataByScheme = (selectedCode) => {
     setIsLoading(true);
@@ -213,10 +250,16 @@ const ApplicationStatus = () => {
       dataIndex: "appReference",
       label: "Apprefernce No",
       render: (text, record) => (
-        <Space size="middle">
-          <a onClick={() => onHistory(record)}>{record?.appReference}</a>
+        <Space type="primary" onClick={() => showDrawer(record)}>
+          {record?.appReference}
         </Space>
       ),
+      // (
+      //   <Space size="middle">
+      //     {record?.appReference}
+      //     {/* <a onClick={() => onHistory(record)}>{record?.appReference}</a> */}
+      //   </Space>
+      // )
     },
     //
     {
@@ -301,40 +344,6 @@ const ApplicationStatus = () => {
     setIsModalVisible(false);
   };
 
-  const onHistory = (values) => {
-    console.log("Success:", values);
-    setIsLoading(true);
-    const newDataSource = data.map((item) => {
-      if (item.key === form.getFieldsValue().key) {
-        return form.getFieldsValue();
-      } else {
-        return item;
-      }
-    });
-
-    // update status
-    api
-      .post("/getCustomersHistroy", {
-        mobileNo: form.getFieldsValue().mobileNo,
-        status: form.getFieldsValue().status,
-        remark: form.getFieldsValue().remark,
-        emailId: form.getFieldsValue().emailId,
-        appReference: form.getFieldsValue().appReference,
-      })
-      .then((result) => {
-        console.log("rt", result, "newDataSource");
-        //setTableData(newDataSource);
-        getCustomerDataByScheme(selectedCode);
-        //getCustomerData();
-        setIsModalVisible(false);
-        setIsLoading(false);
-      });
-
-    //setTableData(newDataSource);
-    setIsModalVisible(false);
-    //console.log("rt", newDataSource, "newDataSource");
-  };
-
   const onFinish = (values) => {
     console.log("Success:", values);
     setIsLoading(true);
@@ -373,30 +382,6 @@ const ApplicationStatus = () => {
     console.log("Failed:", errorInfo);
   };
 
-  // const onSearch = (text) => {
-  //   console.log("text", text.trim());
-  //   if (text.trim() !== "") {
-  //     console.log("ggggggggg");
-  //     const newData = data.filter(
-  //       (item) =>
-  //         item.appReference.indexOf(text) > -1 ||
-  //         item.customerName.indexOf(text) > -1 ||
-  //         item.mobileNo.indexOf(text) > 1 ||
-  //         item.emailId.indexOf(text) > 1 ||
-  //         item.status === text
-  //     );
-  //     //console.log("text:", newData);
-  //     setTableData(newData);
-  //     console.log("newData", newData);
-  //   } else {
-  //     if (localStorage.getItem("Username") === "admin") {
-  //       setTableData(data);
-  //     } else {
-  //     }
-  //   }
-  //   //setSearchText(text);
-  // };
-
   const handleSearch = (text) => {
     setSearchText(text.trim());
     console.log(text + "---on search---");
@@ -413,6 +398,53 @@ const ApplicationStatus = () => {
   const handleChange = () => {
     getCustomerDataByScheme(selectedCode);
   };
+  const showDrawer = (record) => {
+    setRecordForHistory(record);
+    setVisible(true);
+  };
+
+  const onClose = () => {
+    setVisible(false);
+  };
+  const column = [
+    {
+      title: "S.N.",
+      width: 50,
+      dataIndex: "id",
+    },
+    {
+      title: "Date",
+      width: 100,
+      dataIndex: "createDtTm",
+      label: "Applicant Name",
+    },
+
+    {
+      title: "Flat Details",
+      width: 50,
+      dataIndex: "flatno",
+      label: "Applicant Name",
+    },
+
+    {
+      title: "status",
+      dataIndex: "status",
+      label: "status",
+      width: 80,
+      render: (text, record) => {
+        return <Tag color="red">{text || "Not Available"}</Tag>;
+      },
+    },
+    {
+      title: "Remark",
+      dataIndex: "remark",
+      width: 80,
+
+      // render: (text, record) => {
+      //   return <Space size="middle">{record?.scheme?.schemeCode}</Space>;
+      // },
+    },
+  ];
 
   return (
     <>
@@ -627,16 +659,66 @@ const ApplicationStatus = () => {
           </Form.Item>
         </Form>
       </Modal>
-      {/* <Modal
-        title="Basic Modal"
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
+      <Drawer
+        title="Basic Drawer"
+        placement="right"
+        onClose={onClose}
+        visible={visible}
+        width="650"
       >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-      </Modal> */}
+        <div className={classes.container1}>
+          {/* <div className={classes.table}> */}
+
+          <Form.Item label="App Refrence">
+            {/* Lottory Event: */}
+            <Input
+              // defaultValue=""
+              style={{ width: "100px" }}
+              options={history}
+              allowClear={true}
+              value="cvalue.customer.appReference"
+              // {record?.scheme?.schemeName}
+              // onSelect={(cvalue, options) => {
+              //   console.log("cvalue", cvalue, options);
+              //   setHistory(cvalue);
+              // }}
+            ></Input>
+          </Form.Item>
+          <Form.Item label="Name">
+            {/* Lottory Event: */}
+            {recordForHistory.appReference}
+          </Form.Item>
+        </div>
+        <Table
+          dataSource={previousData}
+          columns={column}
+          rowKey={(row) => row.id}
+          bordered
+          size="middle"
+          scroll={{ x: "calc(500px + 50%)", y: 400 }}
+          loading={isLoading}
+          // onChange={(page) => {
+          //   console.log("page", pagination);
+          //   setPagination({
+          //     ...pagination,
+          //     pageNumber: page.current || 1,
+          //     //pageNumber: page,
+          //     //pageSize: page.current,
+          //     // total: pagination.total,
+          //   });
+          // }}
+          // pagination={{
+          //   showSizeChanger: false,
+          //   showQuickJumper: true,
+          //   pageSize: pagination?.pageSize,
+          //   // current: 0,
+          //   // defaultCurrent: 0,
+          //   defaultCurrent: pagination?.pageNumber,
+          //   current: pagination?.pageNumber,
+          //   total: pagination?.total,
+          // }}
+        />
+      </Drawer>
     </>
   );
 };
