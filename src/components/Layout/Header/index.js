@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import Axios from "axios";
 import api from "../../../services/api";
+import { Mycontext } from "../../../store";
 //import { useAuth } from "../../../containers/Pages/Auth";
 import { Modal, Form, Input, Button, Checkbox } from "antd";
 import mhadaImage from "../../../img/mhada.jpg";
 import classes from "./styles.module.css";
 
 const Header = (props) => {
+  // const [state, dispatch] = useContext(Mycontext);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -34,16 +36,6 @@ const Header = (props) => {
   const onFinish = (values) => {
     console.log("Success:", values);
     console.log("history", props.history);
-    //
-    // if (item.key === form.getFieldsValue().key) {
-    //   return form.getFieldsValue();
-    // } else {
-    //   return item;
-    // }
-
-    // localStorage.setItem("person", JSON.stringify(person)); //stringify object and store
-    // var retrievedPerson = JSON.parse(localStorage.getItem("person")); //retrieve the object
-
     api
       .post("/login", {
         // id: form.getFieldsValue().id,
@@ -51,15 +43,12 @@ const Header = (props) => {
         password: form.getFieldsValue().password,
       })
       .then(function (response) {
-        localStorage.setItem("userData", JSON.stringify(response.data));
-        // localStorage.setItem("password", JSON.stringify(response.data));
-
-        console.log("response", response.data);
         if (response.status === 200) {
           setLoggedIn(true);
-          //localStorage.setItem("response.data", JSON.stringify(response.data));
-          //const userData = JSON.parse(localStorage.getItem("response.data")); //retrieve the object
-          // window.location = "/dashboard";
+          localStorage.setItem("userData", JSON.stringify(response.data));
+          // localStorage.setItem("password", JSON.stringify(response.data));
+
+          console.log("response", response.data);
           props.history.push("/dashboard");
           setError(false);
         } else {

@@ -38,80 +38,99 @@ const MenuBar = () => {
         icon={<SettingOutlined />}
         title="Master"
       >
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/application")}
-          key="sub5"
-          icon={<SettingOutlined />}
-          title="Upload Draw Winner"
-        ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/viewuser")}
-          key="sub7"
-          icon={<SettingOutlined />}
-          title=" Mhada Users"
-        ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/adduser")}
-          key="sub15"
-          icon={<SettingOutlined />}
-          title="Add User"
-        ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/schemedetails")}
-          key="sub9"
-          icon={<SettingOutlined />}
-          title="Scheme Details
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/application")}
+            key="sub5"
+            icon={<SettingOutlined />}
+            title="Upload Draw Winner"
+          ></SubMenu>
+        ) : null}
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/viewuser")}
+            key="sub7"
+            icon={<SettingOutlined />}
+            title=" Mhada Users"
+          ></SubMenu>
+        ) : null}
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/adduser")}
+            key="sub15"
+            icon={<SettingOutlined />}
+            title="Add User"
+          ></SubMenu>
+        ) : null}
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/schemedetails")}
+            key="sub9"
+            icon={<SettingOutlined />}
+            title="Scheme Details
         "
-        ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/smsscreen")}
-          key="sub16"
-          icon={<SettingOutlined />}
-          title="Sms Screen"
-        ></SubMenu>
+          ></SubMenu>
+        ) : null}
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/smsscreen")}
+            key="sub16"
+            icon={<SettingOutlined />}
+            title="Sms Screen"
+          ></SubMenu>
+        ) : null}
       </SubMenu>
-      <SubMenu
-        onTitleClick={() => handleClickMenu("/applicationstatus")}
-        key="sub3"
-        icon={<SettingOutlined />}
-        title="ApplicationStatus"
-      ></SubMenu>
+      {userRole === "admin" ||
+      userRole === "superuser" ||
+      userRole === "role" ? (
+        <SubMenu
+          onTitleClick={() => handleClickMenu("/applicationstatus")}
+          key="sub3"
+          icon={<SettingOutlined />}
+          title="ApplicationStatus"
+        ></SubMenu>
+      ) : null}
+
       <SubMenu
         //onTitleClick={() => handleClickMenu("/")}
         key="sub20"
         icon={<SettingOutlined />}
         title="Waiting List"
       >
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/project")}
-          key="sub4"
-          icon={<SettingOutlined />}
-          title="Waiting List "
-        ></SubMenu>{" "}
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/waitinglist")}
-          key="sub19"
-          icon={<SettingOutlined />}
-          title=" Operate Waiting List"
-        ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/activateapplicantlist")}
-          key="sub10"
-          icon={<SettingOutlined />}
-          title="Activate Applicant List
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/project")}
+            key="sub4"
+            icon={<SettingOutlined />}
+            title="Waiting List "
+          ></SubMenu>
+        ) : null}
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/waitinglist")}
+            key="sub19"
+            icon={<SettingOutlined />}
+            title=" Operate Waiting List"
+          ></SubMenu>
+        ) : null}
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/activateapplicantlist")}
+            key="sub10"
+            icon={<SettingOutlined />}
+            title="Activate Applicant List
         "
-        ></SubMenu>
-        <SubMenu
-          onTitleClick={() => handleClickMenu("/broadcastwinner")}
-          key="sub11"
-          icon={<SettingOutlined />}
-          title="BroadCast Winner"
-        ></SubMenu>
+          ></SubMenu>
+        ) : null}
+        {userRole === "admin" ? (
+          <SubMenu
+            onTitleClick={() => handleClickMenu("/broadcastwinner")}
+            key="sub11"
+            icon={<SettingOutlined />}
+            title="BroadCast Winner"
+          ></SubMenu>
+        ) : null}
       </SubMenu>
-      {/* <Menu.Item key="5">photo </Menu.Item>
-        <Menu.Item key="6">video 1</Menu.Item>
-        <Menu.Item key="3">audio </Menu.Item>
-        <Menu.Item key="4">captoins </Menu.Item> */}
     </Menu>
   );
 };

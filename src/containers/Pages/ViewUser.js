@@ -543,7 +543,7 @@ const ViewUser = () => {
                 ]}
               >
                 <Select placeholder="Please Specify">
-                  <Option value="role">Super Admin</Option>
+                  <Option value="role">Mhada User</Option>
                   <Option value="admin">Admin</Option>
                   <Option value="role">Autherized Officers</Option>
                   <Option value="appellateofficers">Appelliate Officers</Option>

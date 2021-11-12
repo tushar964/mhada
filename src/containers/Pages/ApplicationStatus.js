@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import moment from "moment";
 
 import api from "../../services/api";
 import {
@@ -11,7 +12,7 @@ import {
   Form,
   Input,
   Select,
-  Upload,
+  DatePicker,
   Drawer,
   message,
   Result,
@@ -24,6 +25,7 @@ import classes from "./ApplicationStatus.module.css";
 
 const { Option } = Select;
 const { Search } = Input;
+const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY"];
 
 const ApplicationStatus = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -69,9 +71,6 @@ const ApplicationStatus = () => {
 
     api
       .post("/getCustomersHistroy", {
-        // appReference: form.getFieldsValue().appReference,
-        // mobileNo: form.getFieldsValue().mobileNo,
-        // appReference: form.getFieldsValue().appReference,
         mobileNo: recordForHistory?.mobileNo, // "9890638450",
         appReference: recordForHistory?.appReference, //"3210065486",
       })
@@ -79,26 +78,6 @@ const ApplicationStatus = () => {
         console.log("rt", result);
         setPreviousData(result.data);
         setHistory(result.data);
-        const historyData = result.data.map((cvalue) => {
-          return {
-            label:
-              "#" +
-              cvalue.customer.appReference +
-              "-" +
-              cvalue.customer.customerName,
-            value: cvalue.customer.appReference,
-          };
-        });
-        console.log("historyData", historyData);
-        setHistory(historyData);
-        // const history = result.data.map((cvalue) => {
-        //   return {
-        //     label: cvalue.appReference,
-        //     label: cvalue.customerName,
-        //     value: cvalue.lotteryName,
-        //   };
-        // });
-        // setIsModalVisible(false);
         setIsLoading(false);
       });
 
@@ -247,11 +226,13 @@ const ApplicationStatus = () => {
     },
     {
       title: "App Refrence",
+      cursor: "pointer",
       dataIndex: "appReference",
       label: "Apprefernce No",
+
       render: (text, record) => (
         <Space type="primary" onClick={() => showDrawer(record)}>
-          {record?.appReference}
+          <a>{record?.appReference}</a>
         </Space>
       ),
       // (
@@ -270,7 +251,7 @@ const ApplicationStatus = () => {
     {
       title: "Mobile",
       dataIndex: "mobileNo",
-      width: 150,
+      width: 100,
       label: "Mobile",
     },
     {
@@ -305,10 +286,11 @@ const ApplicationStatus = () => {
     },
 
     {
-      title: "status",
+      title: "Status",
       dataIndex: "status",
       label: "status",
       width: 150,
+      align: "center",
       render: (text, record) => {
         return <Tag color="red">{text || "Not Available"}</Tag>;
       },
@@ -322,6 +304,7 @@ const ApplicationStatus = () => {
       //   return <Space size="middle">{record?.scheme?.schemeCode}</Space>;
       // },
     },
+    //
     {
       title: "Action",
       key: "action",
@@ -332,6 +315,7 @@ const ApplicationStatus = () => {
         </Space>
       ),
     },
+    //
   ];
 
   const onEdit = (record) => {
@@ -406,31 +390,49 @@ const ApplicationStatus = () => {
   const onClose = () => {
     setVisible(false);
   };
+
   const column = [
     {
       title: "S.N.",
       width: 50,
       dataIndex: "id",
+      align: "center",
     },
     {
       title: "Date",
-      width: 100,
+      width: 80,
       dataIndex: "createDtTm",
-      label: "Applicant Name",
+      render: (record) => {
+        return <p>{moment(record.createDtTm).format("DD-MM-YYYY")}</p>;
+      },
+      // render: (record) => {
+      //   return (
+      //     <p>
+      //       {moment(record.createDtTm, "Moment Format").format("DD-MM-YYYY")}
+      //     </p>
+      //   );
+      // },
     },
 
     {
       title: "Flat Details",
       width: 50,
       dataIndex: "flatno",
-      label: "Applicant Name",
+      render: (text, record) => {
+        return (
+          <Space size="middle">
+            {record?.flat?.flatno}-{record?.flat?.floor}
+          </Space>
+        );
+      },
     },
 
     {
-      title: "status",
+      title: "Status",
       dataIndex: "status",
       label: "status",
-      width: 80,
+      align: "center",
+      width: 60,
       render: (text, record) => {
         return <Tag color="red">{text || "Not Available"}</Tag>;
       },
@@ -438,14 +440,15 @@ const ApplicationStatus = () => {
     {
       title: "Remark",
       dataIndex: "remark",
-      width: 80,
+      width: 60,
 
       // render: (text, record) => {
       //   return <Space size="middle">{record?.scheme?.schemeCode}</Space>;
       // },
     },
   ];
-
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userRole = userData?.role;
   return (
     <>
       <Header />
@@ -562,105 +565,107 @@ const ApplicationStatus = () => {
         footer={null}
         loading={isLoading}
       >
-        <Form
-          name="basic"
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          layout="vertical"
-          form={form}
-          // loading={isLoading}
-        >
-          <Form.Item label="Id" name="key" hidden>
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Application Reference"
-            name="appReference"
-            rules={[
-              {
-                required: true,
-                message: "Please input your name!",
-              },
-            ]}
+        {userRole === "admin" || userRole === "role" ? (
+          <Form
+            name="basic"
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            layout="vertical"
+            form={form}
+            // loading={isLoading}
           >
-            <Input disabled />
-          </Form.Item>
-          <Form.Item
-            label="Name"
-            name="customerName"
-            rules={[
-              {
-                required: true,
-                message: "Please input your name!",
-              },
-            ]}
-          >
-            <Input disabled />
-          </Form.Item>
-          <Form.Item
-            label="Mobile"
-            name="mobileNo"
-            rules={[
-              {
-                required: true,
-                message: "Please input your mobile!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Email"
-            name="emailId"
-            rules={[
-              {
-                required: true,
-                message: "Please input your email!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Status"
-            name="status"
-            rules={[
-              {
-                required: true,
-                message: "Please input your status!",
-              },
-            ]}
-          >
-            <Select allowClear>
-              <Option value="POL given">POL given</Option>
-              <Option value="Eligibles">Eligibles</Option>
-              <Option value="NO SCRUTINY">NO SCRUTINY</Option>
-              <Option value="PENDING DOCUMENT">PENDING DOCUMENT</Option>
-              <Option value="INELIGIBLE">INELIGIBLE</Option>
-              <Option value="REFUNDED">REFUNDED</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Remark"
-            name="remark"
-            rules={[
-              {
-                required: true,
-                message: "Please input your Remark!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Update
-            </Button>
-          </Form.Item>
-        </Form>
+            <Form.Item label="Id" name="key" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Application Reference"
+              name="appReference"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your name!",
+                },
+              ]}
+            >
+              <Input disabled />
+            </Form.Item>
+            <Form.Item
+              label="Name"
+              name="customerName"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your name!",
+                },
+              ]}
+            >
+              <Input disabled />
+            </Form.Item>
+            <Form.Item
+              label="Mobile"
+              name="mobileNo"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your mobile!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Email"
+              name="emailId"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your email!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Status"
+              name="status"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your status!",
+                },
+              ]}
+            >
+              <Select allowClear>
+                <Option value="POL given">POL given</Option>
+                <Option value="Eligibles">Eligibles</Option>
+                <Option value="NO SCRUTINY">NO SCRUTINY</Option>
+                <Option value="PENDING DOCUMENT">PENDING DOCUMENT</Option>
+                <Option value="INELIGIBLE">INELIGIBLE</Option>
+                <Option value="REFUNDED">REFUNDED</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label="Remark"
+              name="remark"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your Remark!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Update
+              </Button>
+            </Form.Item>
+          </Form>
+        ) : null}
       </Modal>
       <Drawer
-        title="Basic Drawer"
+        title="Applicant History"
         placement="right"
         onClose={onClose}
         visible={visible}
@@ -671,22 +676,11 @@ const ApplicationStatus = () => {
 
           <Form.Item label="App Refrence">
             {/* Lottory Event: */}
-            <Input
-              // defaultValue=""
-              style={{ width: "100px" }}
-              options={history}
-              allowClear={true}
-              value="cvalue.customer.appReference"
-              // {record?.scheme?.schemeName}
-              // onSelect={(cvalue, options) => {
-              //   console.log("cvalue", cvalue, options);
-              //   setHistory(cvalue);
-              // }}
-            ></Input>
+            {recordForHistory?.appReference}
           </Form.Item>
           <Form.Item label="Name">
             {/* Lottory Event: */}
-            {recordForHistory.appReference}
+            {recordForHistory?.customerName}
           </Form.Item>
         </div>
         <Table
